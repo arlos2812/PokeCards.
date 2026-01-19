@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>PokeCards</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0b0b0b" />
+
+  <!-- ESTILOS -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <h1 class="logo">PokeCards</h1>
+  </header>
+
+  <!-- MÚSICA -->
+  <div class="music-bar">
+    <button id="start-music">▶ Música</button>
+    <input
+      id="volume"
+      type="range"
+      min="0"
+      max="1"
+      step="0.01"
+      value="0.4"
+    />
+  </div>
+
+  <!-- EXPANSIONES -->
+  <section id="sets-screen">
+    <h2 class="section-title">EXPANSIONES</h2>
+    <div id="sets" class="grid"></div>
+  </section>
+
+  <!-- CARTAS -->
+  <section id="cards-screen" class="hidden">
+    <button id="back-to-sets">⬅ Volver</button>
+
+    <!-- FILTROS -->
+    <div class="filters">
+      <select id="filter">
+        <option value="number">🔢 Número</option>
+        <option value="az">A–Z</option>
+        <option value="za">Z–A</option>
+        <option value="price-desc">💰 Precio ↓</option>
+        <option value="price-asc">💰 Precio ↑</option>
+        <option value="top">🔥 Top 5</option>
+      </select>
+    </div>
+
+    <h2 id="set-title" class="section-title"></h2>
+    <div id="counter" class="counter"></div>
+
+    <div id="cards" class="grid"></div>
+
+    <!-- CARGANDO -->
+    <div id="loading" class="loading hidden">
+      <div class="spinner"></div>
+      <span>Cargando cartas…</span>
+    </div>
+
+    <!-- FINAL -->
+    <div id="end-message" class="end hidden">
+      No hay más cartas
+    </div>
+  </section>
+
+  <!-- CARTA INDIVIDUAL -->
+  <section id="card-screen" class="hidden">
+    <button id="back-to-cards">⬅ Volver</button>
+    <div id="card-detail"></div>
+  </section>
+
+  <!-- AUDIO -->
+  <audio id="music-player"></audio>
+
+  <!-- APP -->
+  <script src="app.js"></script>
+
+  <!-- SERVICE WORKER -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("service-worker.js");
+    }
+  </script>
+
+</body>
+</html>
