@@ -1,0 +1,147 @@
+@font-face {
+  font-family: 'Pokemon';
+  src: url('./fonts/PokemonSolid.ttf');
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Pokemon', sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #0b0b0b;
+  color: white;
+}
+
+/* HEADER */
+header {
+  display: flex;
+  justify-content: center;
+  padding: 15px;
+}
+
+.logo {
+  font-size: 36px;
+  color: #ffcb05;
+  -webkit-text-stroke: 2px #2a75bb;
+}
+
+/* MÚSICA */
+.music-bar {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px;
+}
+
+/* TITULOS */
+.section-title {
+  text-align: center;
+  font-size: 28px;
+  margin: 20px 0;
+}
+
+/* FILTROS */
+.filters {
+  display: flex;
+  justify-content: center;
+  margin: 10px;
+}
+
+select {
+  padding: 6px 10px;
+  font-size: 16px;
+}
+
+/* CONTADOR */
+.counter {
+  text-align: center;
+  margin-bottom: 10px;
+  color: #ffcb05;
+}
+
+/* GRID */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 18px;
+  padding: 20px;
+}
+
+/* TARJETAS */
+.set-card, .card {
+  background: #1c1c1c;
+  border-radius: 14px;
+  padding: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform .2s;
+  position: relative;
+}
+
+.set-card:hover,
+.card:hover {
+  transform: scale(1.05);
+}
+
+.card img,
+.set-card img {
+  width: 100%;
+  border-radius: 8px;
+}
+
+.price {
+  color: #00ff66;
+  margin: 5px 0;
+}
+
+/* TOP 5 🔥 */
+.fire {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: radial-gradient(circle, orange, red);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: white;
+  font-size: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* LOADING */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 20px;
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 4px solid #444;
+  border-top: 4px solid #ffcb05;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* FINAL */
+.end {
+  text-align: center;
+  padding: 20px;
+  color: #aaa;
+}
+
+/* UTIL */
+.hidden { display: none; }
+button { cursor: pointer; }
+
