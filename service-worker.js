@@ -1,6 +1,6 @@
-const CACHE_NAME = "pokecards-v5";
+const CACHE_NAME = "pokecards-v6";
 
-/* Archivos básicos de la app */
+/* Archivos estáticos */
 const STATIC_ASSETS = [
   "./",
   "./index.html",
@@ -9,7 +9,7 @@ const STATIC_ASSETS = [
   "./manifest.json"
 ];
 
-/* ===== INSTALACIÓN ===== */
+/* ===== INSTALL ===== */
 self.addEventListener("install", event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
@@ -17,14 +17,14 @@ self.addEventListener("install", event => {
   self.skipWaiting();
 });
 
-/* ===== ACTIVACIÓN ===== */
+/* ===== ACTIVATE ===== */
 self.addEventListener("activate", event => {
   event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(
         keys
-          .filter(key => key !== CACHE_NAME)
-          .map(key => caches.delete(key))
+          .filter(k => k !== CACHE_NAME)
+          .map(k => caches.delete(k))
       )
     )
   );
@@ -33,34 +33,34 @@ self.addEventListener("activate", event => {
 
 /* ===== FETCH ===== */
 self.addEventListener("fetch", event => {
-  const request = event.request;
+  const req = event.request;
+  const url = new URL(req.url);
 
-  /* Cache-first para imágenes (cartas y logos) */
-  if (request.destination === "image") {
+  /* 🚫 NO interceptar la API */
+  if (url.origin.includes("api.pokemontcg.io")) {
+    return;
+  }
+
+  /* 🖼️ Cache-first SOLO para imágenes */
+  if (req.destination === "image") {
     event.respondWith(
-      caches.match(request).then(response => {
-        if (response) return response;
-
-        return fetch(request).then(fetchResponse => {
-          return caches.open(CACHE_NAME).then(cache => {
-            cache.put(request, fetchResponse.clone());
-            return fetchResponse;
-          });
-        });
+      caches.match(req).then(res => {
+        return (
+          res ||
+          fetch(req).then(fetchRes => {
+            return caches.open(CACHE_NAME).then(cache => {
+              cache.put(req, fetchRes.clone());
+              return fetchRes;
+            });
+          })
+        );
       })
     );
     return;
   }
 
-  /* Network-first para el resto (API, JS, CSS) */
+  /* 📄 Cache-first para archivos estáticos */
   event.respondWith(
-    fetch(request)
-      .then(response => {
-        return caches.open(CACHE_NAME).then(cache => {
-          cache.put(request, response.clone());
-          return response;
-        });
-      })
-      .catch(() => caches.match(request))
+    caches.match(req).then(res => res || fetch(req))
   );
 });
