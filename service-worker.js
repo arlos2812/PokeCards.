@@ -1,4 +1,4 @@
-const CACHE_NAME = "pokecards-v1";
+const CACHE_NAME = "pokecards-v3";
 
 const APP_ASSETS = [
   "./",
@@ -37,32 +37,7 @@ self.addEventListener("fetch", event => {
   const url = new URL(event.request.url);
 
   if (url.origin.includes("pokemontcg.io")) {
-    event.respondWith(
-      fetch(event.request)
-        .then(response => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then(cache =>
-            cache.put(event.request, clone)
-          );
-          return response;
-        })
-        .catch(() => caches.match(event.request))
-    );
-    return;
-  }
-
-  if (event.request.destination === "image") {
-    event.respondWith(
-      caches.match(event.request).then(cached =>
-        cached || fetch(event.request).then(response => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then(cache =>
-            cache.put(event.request, clone)
-          );
-          return response;
-        })
-      )
-    );
+    event.respondWith(fetch(event.request));
     return;
   }
 
