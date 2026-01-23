@@ -1,7 +1,7 @@
 const API_KEY = "3d240d93-e6be-4c24-a9fc-c7b4593dd5fc";
 
 /* =========================
-   🎵 MÚSICA
+   🎵 MÚSICA (FIX DEFINITIVO)
 ========================= */
 const playlist = [
   "sounds/song1.mp3",
@@ -16,14 +16,17 @@ const volume = document.getElementById("music-volume");
 let songIndex = 0;
 let playing = false;
 
-music.volume = volume.value;
+// 🔑 desbloqueo obligatorio para móviles
+music.muted = true;
 music.preload = "auto";
+music.volume = volume.value;
 
 musicToggle.onclick = async () => {
   try {
     if (!playing) {
       music.src = playlist[songIndex];
-      await music.play(); // 🔑 CLAVE
+      music.muted = false;
+      await music.play();
       playing = true;
       musicToggle.textContent = "⏸️ Música";
     } else {
@@ -31,9 +34,8 @@ musicToggle.onclick = async () => {
       playing = false;
       musicToggle.textContent = "▶️ Música";
     }
-  } catch (err) {
-    alert("Pulsa otra vez para activar el sonido 🔊");
-    console.error(err);
+  } catch (e) {
+    console.error(e);
   }
 };
 
