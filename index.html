@@ -15,25 +15,15 @@
 
 <body>
 
-<!-- HEADER -->
 <header>
   <h1 class="logo">PokeCards</h1>
 </header>
 
-<!-- BARRA DE MÚSICA -->
 <div class="music-bar">
   <button id="music-toggle">▶️ Música</button>
-  <input
-    id="music-volume"
-    type="range"
-    min="0"
-    max="1"
-    step="0.01"
-    value="0.4"
-  >
+  <input id="music-volume" type="range" min="0" max="1" step="0.01" value="0.4">
 </div>
 
-<!-- ESCANEAR CARTA -->
 <div class="scan-bar">
   <button id="scan-btn">📷 Escanear carta</button>
   <input
@@ -45,19 +35,16 @@
   >
 </div>
 
-<!-- LOADER GLOBAL -->
 <div id="global-loading" class="loading hidden">
   <div class="spinner"></div>
   <div id="loading-text">Cargando…</div>
 </div>
 
-<!-- PANTALLA EXPANSIONES -->
 <section id="sets-screen">
   <h2 class="section-title">EXPANSIONES</h2>
   <div id="sets" class="grid"></div>
 </section>
 
-<!-- PANTALLA CARTAS -->
 <section id="cards-screen" class="hidden">
   <button id="back-to-sets">⬅ Volver</button>
 
@@ -72,14 +59,15 @@
   <div id="cards" class="grid"></div>
 </section>
 
-<!-- PANTALLA CARTA -->
 <section id="card-screen" class="hidden">
   <button id="back-to-cards">⬅ Volver</button>
   <div id="card-detail"></div>
 </section>
 
-<!-- AUDIO -->
 <audio id="music-player"></audio>
+
+<!-- ✅ OCR -->
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
 <!-- APP -->
 <script src="app.js"></script>
