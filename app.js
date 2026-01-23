@@ -1,7 +1,7 @@
 const API_KEY = "3d240d93-e6be-4c24-a9fc-c7b4593dd5fc";
 
 /* =========================
-   🎵 MÚSICA (FIX DEFINITIVO)
+   🎵 MÚSICA
 ========================= */
 const playlist = [
   "sounds/song1.mp3",
@@ -16,7 +16,6 @@ const volume = document.getElementById("music-volume");
 let songIndex = 0;
 let playing = false;
 
-// 🔑 desbloqueo obligatorio para móviles
 music.muted = true;
 music.preload = "auto";
 music.volume = volume.value;
@@ -174,6 +173,57 @@ async function loadNextPage(auto = false) {
 
   if (auto) setTimeout(() => loadNextPage(true), 300);
 }
+
+/* =========================
+   FILTROS
+========================= */
+filterSelect.onchange = () => {
+  let list = [...allCards];
+
+  switch (filterSelect.value) {
+    case "az":
+      list.sort((a, b) => a.name.localeCompare(b.name));
+      break;
+    case "za":
+      list.sort((a, b) => b.name.localeCompare(a.name));
+      break;
+    case "set":
+      list.sort((a, b) => a.set.name.localeCompare(b.set.name));
+      break;
+    case "price-desc":
+      list.sort(
+        (a, b) =>
+          (b.cardmarket?.prices?.averageSellPrice || 0) -
+          (a.cardmarket?.prices?.averageSellPrice || 0)
+      );
+      break;
+    case "price-asc":
+      list.sort(
+        (a, b) =>
+          (a.cardmarket?.prices?.averageSellPrice || 0) -
+          (b.cardmarket?.prices?.averageSellPrice || 0)
+      );
+      break;
+  }
+
+  cardsContainer.innerHTML = "";
+  list.forEach(card => {
+    const price =
+      card.cardmarket?.prices?.averageSellPrice != null
+        ? card.cardmarket.prices.averageSellPrice.toFixed(2) + " €"
+        : "—";
+
+    const d = document.createElement("div");
+    d.className = "card";
+    d.innerHTML = `
+      <img src="${card.images.small}">
+      <div class="price">${price}</div>
+      <h4>${card.name}</h4>
+    `;
+    d.onclick = () => openCard(card);
+    cardsContainer.appendChild(d);
+  });
+};
 
 /* =========================
    FICHA CARTA
