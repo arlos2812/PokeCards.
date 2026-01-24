@@ -59,6 +59,12 @@ const backToCards = document.getElementById("back-to-cards");
 const filterSelect = document.getElementById("filter");
 
 /* =========================
+   LOADER
+========================= */
+const loader = document.getElementById("global-loading");
+const loadingText = document.getElementById("loading-text");
+
+/* =========================
    ESTADO
 ========================= */
 let currentSetId = null;
@@ -67,11 +73,15 @@ let pageSize = 50;
 let loading = false;
 let finished = false;
 let allCards = [];
+let filtering = false;
 
 /* =========================
    EXPANSIONES
 ========================= */
 async function loadSets() {
+  loader.classList.remove("hidden");
+  loadingText.textContent = "Cargando expansiones…";
+
   const res = await fetch("https://api.pokemontcg.io/v2/sets", {
     headers: { "X-Api-Key": API_KEY }
   });
@@ -90,15 +100,19 @@ async function loadSets() {
     d.onclick = () => openSet(set.id, set.name);
     setsContainer.appendChild(d);
   });
+
+  loader.classList.add("hidden");
 }
 
 /* =========================
-   ABRIR SET
+   ABRIR EXPANSIÓN
 ========================= */
 function openSet(id, name) {
   currentSetId = id;
   page = 1;
   finished = false;
+  loading = false;
+  filtering = false;
   allCards = [];
 
   cardsContainer.innerHTML = "";
@@ -111,11 +125,14 @@ function openSet(id, name) {
 }
 
 /* =========================
-   CARTAS
+   CARGA CARTAS
 ========================= */
 async function loadNextPage(auto = false) {
   if (loading || finished) return;
+
   loading = true;
+  loader.classList.remove("hidden");
+  loadingText.textContent = "Cargando cartas…";
 
   const res = await fetch(
     `https://api.pokemontcg.io/v2/cards?q=set.id:${currentSetId}&page=${page}&pageSize=${pageSize}`,
@@ -125,16 +142,23 @@ async function loadNextPage(auto = false) {
 
   if (!data.data.length) {
     finished = true;
+    loader.classList.add("hidden");
     return;
   }
 
   data.data.forEach(card => {
     allCards.push(card);
 
+    const price =
+      card.cardmarket?.prices?.averageSellPrice != null
+        ? card.cardmarket.prices.averageSellPrice.toFixed(2) + " €"
+        : "—";
+
     const d = document.createElement("div");
     d.className = "card";
     d.innerHTML = `
       <img src="${card.images.small}">
+      <div class="price">${price}</div>
       <h4>${card.name}</h4>
     `;
     d.onclick = () => openCard(card);
@@ -143,31 +167,60 @@ async function loadNextPage(auto = false) {
 
   page++;
   loading = false;
-  if (auto) setTimeout(() => loadNextPage(true), 300);
+  loader.classList.add("hidden");
+
+  if (auto && !filtering) {
+    setTimeout(() => loadNextPage(true), 300);
+  }
 }
 
 /* =========================
-   FILTROS (AQUÍ ESTÁ EL DE EXPANSIÓN)
+   FILTROS
 ========================= */
 filterSelect.onchange = () => {
+  filtering = true;
+
   let list = [...allCards];
 
-  if (filterSelect.value === "az") {
-    list.sort((a, b) => a.name.localeCompare(b.name));
-  }
-  if (filterSelect.value === "za") {
-    list.sort((a, b) => b.name.localeCompare(a.name));
-  }
-  if (filterSelect.value === "set") {
-    list.sort((a, b) => a.set.name.localeCompare(b.set.name));
+  switch (filterSelect.value) {
+    case "az":
+      list.sort((a, b) => a.name.localeCompare(b.name));
+      break;
+    case "za":
+      list.sort((a, b) => b.name.localeCompare(a.name));
+      break;
+    case "set":
+      list.sort((a, b) => a.set.name.localeCompare(b.set.name));
+      break;
+    case "price-desc":
+      list.sort(
+        (a, b) =>
+          (b.cardmarket?.prices?.averageSellPrice || 0) -
+          (a.cardmarket?.prices?.averageSellPrice || 0)
+      );
+      break;
+    case "price-asc":
+      list.sort(
+        (a, b) =>
+          (a.cardmarket?.prices?.averageSellPrice || 0) -
+          (b.cardmarket?.prices?.averageSellPrice || 0)
+      );
+      break;
   }
 
   cardsContainer.innerHTML = "";
+
   list.forEach(card => {
+    const price =
+      card.cardmarket?.prices?.averageSellPrice != null
+        ? card.cardmarket.prices.averageSellPrice.toFixed(2) + " €"
+        : "—";
+
     const d = document.createElement("div");
     d.className = "card";
     d.innerHTML = `
       <img src="${card.images.small}">
+      <div class="price">${price}</div>
       <h4>${card.name}</h4>
     `;
     d.onclick = () => openCard(card);
@@ -176,20 +229,40 @@ filterSelect.onchange = () => {
 };
 
 /* =========================
-   FICHA
+   FICHA CARTA (ENLACES RESTAURADOS)
 ========================= */
 function openCard(card) {
   cardsScreen.classList.add("hidden");
   cardScreen.classList.remove("hidden");
+
+  const price =
+    card.cardmarket?.prices?.averageSellPrice != null
+      ? card.cardmarket.prices.averageSellPrice.toFixed(2) + " €"
+      : "—";
 
   cardDetail.innerHTML = `
     <img src="${card.images.large}">
     <h2>${card.name}</h2>
     <p><strong>Expansión:</strong> ${card.set.name}</p>
     <p><strong>Número:</strong> ${card.number}</p>
+    <p><strong>Rareza:</strong> ${card.rarity || "—"}</p>
+    <p><strong>Precio medio:</strong> ${price}</p>
+
+    <a target="_blank"
+      href="https://www.pricecharting.com/search-products?q=${encodeURIComponent(card.name)}">
+      PriceCharting
+    </a><br>
+
+    <a target="_blank"
+      href="${card.cardmarket?.url || "https://www.cardmarket.com"}">
+      CardMarket
+    </a>
   `;
 }
 
+/* =========================
+   VOLVER
+========================= */
 backToSets.onclick = () => {
   cardsScreen.classList.add("hidden");
   setsScreen.classList.remove("hidden");
@@ -200,4 +273,5 @@ backToCards.onclick = () => {
   cardsScreen.classList.remove("hidden");
 };
 
+/* INIT */
 loadSets();
