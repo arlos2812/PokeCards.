@@ -1,6 +1,47 @@
 const API_KEY = "3d240d93-e6be-4c24-a9fc-c7b4593dd5fc";
 
 /* =========================
+   🎵 MÚSICA
+========================= */
+const playlist = [
+  "sounds/song1.mp3",
+  "sounds/song2.mp3",
+  "sounds/song3.mp3"
+];
+
+const music = document.getElementById("music-player");
+const musicToggle = document.getElementById("music-toggle");
+const volume = document.getElementById("music-volume");
+
+let songIndex = 0;
+let playing = false;
+
+if (music && musicToggle && volume) {
+  music.volume = volume.value;
+
+  musicToggle.onclick = () => {
+    if (!playing) {
+      music.src = playlist[songIndex];
+      music.play().catch(()=>{});
+      playing = true;
+      musicToggle.textContent = "⏸️ Música";
+    } else {
+      music.pause();
+      playing = false;
+      musicToggle.textContent = "▶️ Música";
+    }
+  };
+
+  volume.oninput = () => music.volume = volume.value;
+
+  music.onended = () => {
+    songIndex = (songIndex + 1) % playlist.length;
+    music.src = playlist[songIndex];
+    music.play().catch(()=>{});
+  };
+}
+
+/* =========================
    ESTADO
 ========================= */
 let currentSetId = null;
@@ -37,60 +78,74 @@ filterSelect.innerHTML = `
    CARGAR EXPANSIONES
 ========================= */
 async function loadSets() {
-  loader.classList.remove("hidden");
+  try {
+    loader.classList.remove("hidden");
 
-  const res = await fetch("https://api.pokemontcg.io/v2/sets", {
-    headers: { "X-Api-Key": API_KEY }
-  });
-  const data = await res.json();
+    const res = await fetch("https://api.pokemontcg.io/v2/sets", {
+      headers: { "X-Api-Key": API_KEY }
+    });
 
-  setsContainer.innerHTML = "";
-  data.data.forEach(set => {
-    const d = document.createElement("div");
-    d.className = "set-card";
-    d.innerHTML = `
-      <img src="${set.images.logo}" loading="lazy">
-      <h3>${set.name}</h3>
-      <div class="set-date">${set.releaseDate || ""}</div>
-    `;
-    d.onclick = () => openSet(set.id, set.name);
-    setsContainer.appendChild(d);
-  });
+    const data = await res.json();
 
-  loader.classList.add("hidden");
+    setsContainer.innerHTML = "";
+
+    data.data.forEach(set => {
+      const d = document.createElement("div");
+      d.className = "set-card";
+      d.innerHTML = `
+        <img src="${set.images.logo}" loading="lazy">
+        <h3>${set.name}</h3>
+        <div class="set-date">${set.releaseDate || ""}</div>
+      `;
+      d.onclick = () => openSet(set.id, set.name);
+      setsContainer.appendChild(d);
+    });
+
+  } catch (e) {
+    setsContainer.innerHTML = "<p>Error cargando expansiones</p>";
+    console.error(e);
+  } finally {
+    loader.classList.add("hidden");
+  }
 }
 
 /* =========================
    ABRIR EXPANSIÓN
 ========================= */
 async function openSet(id, name) {
-  currentSetId = id;
-  allCards = [];
-  loadedCardIds.clear();
-  cardsContainer.innerHTML = "";
+  try {
+    currentSetId = id;
+    allCards = [];
+    loadedCardIds.clear();
+    cardsContainer.innerHTML = "";
 
-  setTitle.textContent = name;
-  setsScreen.classList.add("hidden");
-  cardsScreen.classList.remove("hidden");
-  cardScreen.classList.add("hidden");
+    setTitle.textContent = name;
+    setsScreen.classList.add("hidden");
+    cardsScreen.classList.remove("hidden");
+    cardScreen.classList.add("hidden");
 
-  loader.classList.remove("hidden");
+    loader.classList.remove("hidden");
 
-  const res = await fetch(
-    `https://api.pokemontcg.io/v2/cards?q=set.id:${currentSetId}`,
-    { headers: { "X-Api-Key": API_KEY } }
-  );
-  const data = await res.json();
+    const res = await fetch(
+      `https://api.pokemontcg.io/v2/cards?q=set.id:${currentSetId}`,
+      { headers: { "X-Api-Key": API_KEY } }
+    );
 
-  data.data.forEach(card => {
-    if (!loadedCardIds.has(card.id)) {
-      loadedCardIds.add(card.id);
-      allCards.push(card);
-      renderCard(card);
-    }
-  });
+    const data = await res.json();
 
-  loader.classList.add("hidden");
+    data.data.forEach(card => {
+      if (!loadedCardIds.has(card.id)) {
+        loadedCardIds.add(card.id);
+        allCards.push(card);
+        renderCard(card);
+      }
+    });
+
+  } catch (e) {
+    console.error(e);
+  } finally {
+    loader.classList.add("hidden");
+  }
 }
 
 /* =========================
@@ -114,18 +169,14 @@ function renderCard(card) {
 }
 
 /* =========================
-   FILTROS (SIN DUPLICAR)
+   FILTROS
 ========================= */
 filterSelect.onchange = () => {
   let list = [...allCards];
 
   switch (filterSelect.value) {
-    case "az":
-      list.sort((a,b)=>a.name.localeCompare(b.name));
-      break;
-    case "za":
-      list.sort((a,b)=>b.name.localeCompare(a.name));
-      break;
+    case "az": list.sort((a,b)=>a.name.localeCompare(b.name)); break;
+    case "za": list.sort((a,b)=>b.name.localeCompare(a.name)); break;
     case "price-desc":
       list.sort((a,b)=>(b.cardmarket?.prices?.averageSellPrice||0)-(a.cardmarket?.prices?.averageSellPrice||0));
       break;
@@ -142,7 +193,7 @@ filterSelect.onchange = () => {
 };
 
 /* =========================
-   CARTA ABIERTA (1 SOLO VOLVER)
+   CARTA ABIERTA
 ========================= */
 function openCard(card) {
   cardsScreen.classList.add("hidden");
@@ -192,7 +243,7 @@ function openCard(card) {
 }
 
 /* =========================
-   BOTÓN VOLVER A EXPANSIONES
+   VOLVER A EXPANSIONES
 ========================= */
 document.getElementById("back-to-sets").onclick = () => {
   cardsScreen.classList.add("hidden");
