@@ -1,7 +1,7 @@
 const API_KEY = "3d240d93-e6be-4c24-a9fc-c7b4593dd5fc";
 
 /* =========================
-   🎵 MÚSICA
+   🎵 MÚSICA (ROBUSTA)
 ========================= */
 const playlist = [
   "sounds/song1.mp3",
@@ -16,28 +16,32 @@ const volume = document.getElementById("music-volume");
 let songIndex = 0;
 let playing = false;
 
-music.volume = volume.value;
+if (music && musicToggle && volume) {
+  music.volume = volume.value;
 
-musicToggle.onclick = () => {
-  if (!playing) {
+  musicToggle.onclick = () => {
+    if (!playing) {
+      music.src = playlist[songIndex];
+      music.play().catch(() => {});
+      playing = true;
+      musicToggle.textContent = "⏸️ Música";
+    } else {
+      music.pause();
+      playing = false;
+      musicToggle.textContent = "▶️ Música";
+    }
+  };
+
+  volume.oninput = () => {
+    music.volume = volume.value;
+  };
+
+  music.onended = () => {
+    songIndex = (songIndex + 1) % playlist.length;
     music.src = playlist[songIndex];
-    music.play();
-    playing = true;
-    musicToggle.textContent = "⏸️ Música";
-  } else {
-    music.pause();
-    playing = false;
-    musicToggle.textContent = "▶️ Música";
-  }
-};
-
-volume.oninput = () => (music.volume = volume.value);
-
-music.onended = () => {
-  songIndex = (songIndex + 1) % playlist.length;
-  music.src = playlist[songIndex];
-  music.play();
-};
+    music.play().catch(() => {});
+  };
+}
 
 /* =========================
    UI
@@ -54,7 +58,6 @@ const setTitle = document.getElementById("set-title");
 const backToSets = document.getElementById("back-to-sets");
 const backToCards = document.getElementById("back-to-cards");
 const filterSelect = document.getElementById("filter");
-
 const loadMoreBtn = document.getElementById("load-more");
 
 /* =========================
@@ -118,7 +121,7 @@ function openSet(id, name) {
   cardScreen.classList.add("hidden");
 
   setTitle.textContent = name;
-  loadMoreBtn.classList.remove("hidden");
+  if (loadMoreBtn) loadMoreBtn.classList.remove("hidden");
 
   loadNextPage();
 }
@@ -141,7 +144,7 @@ async function loadNextPage() {
 
   if (!data.data || data.data.length === 0) {
     finished = true;
-    loadMoreBtn.classList.add("hidden");
+    if (loadMoreBtn) loadMoreBtn.classList.add("hidden");
     loader.classList.add("hidden");
     return;
   }
@@ -173,35 +176,41 @@ async function loadNextPage() {
 /* =========================
    BOTÓN CARGAR MÁS
 ========================= */
-loadMoreBtn.onclick = () => loadNextPage();
+if (loadMoreBtn) {
+  loadMoreBtn.onclick = () => loadNextPage();
+}
 
 /* =========================
    FILTROS
 ========================= */
-filterSelect.onchange = () => {
-  let list = [...allCards];
+if (filterSelect) {
+  filterSelect.onchange = () => {
+    let list = [...allCards];
 
-  if (filterSelect.value === "az") list.sort((a, b) => a.name.localeCompare(b.name));
-  if (filterSelect.value === "za") list.sort((a, b) => b.name.localeCompare(a.name));
+    if (filterSelect.value === "az")
+      list.sort((a, b) => a.name.localeCompare(b.name));
+    if (filterSelect.value === "za")
+      list.sort((a, b) => b.name.localeCompare(a.name));
 
-  cardsContainer.innerHTML = "";
-  list.forEach(card => {
-    const price =
-      card.cardmarket?.prices?.averageSellPrice != null
-        ? card.cardmarket.prices.averageSellPrice.toFixed(2) + " €"
-        : "—";
+    cardsContainer.innerHTML = "";
+    list.forEach(card => {
+      const price =
+        card.cardmarket?.prices?.averageSellPrice != null
+          ? card.cardmarket.prices.averageSellPrice.toFixed(2) + " €"
+          : "—";
 
-    const d = document.createElement("div");
-    d.className = "card";
-    d.innerHTML = `
-      <img src="${card.images.small}" loading="lazy">
-      <div class="price">${price}</div>
-      <h4>${card.name}</h4>
-    `;
-    d.onclick = () => openCard(card);
-    cardsContainer.appendChild(d);
-  });
-};
+      const d = document.createElement("div");
+      d.className = "card";
+      d.innerHTML = `
+        <img src="${card.images.small}" loading="lazy">
+        <div class="price">${price}</div>
+        <h4>${card.name}</h4>
+      `;
+      d.onclick = () => openCard(card);
+      cardsContainer.appendChild(d);
+    });
+  };
+}
 
 /* =========================
    FICHA CARTA
@@ -228,15 +237,19 @@ function openCard(card) {
 /* =========================
    VOLVER
 ========================= */
-backToSets.onclick = () => {
-  cardsScreen.classList.add("hidden");
-  setsScreen.classList.remove("hidden");
-};
+if (backToSets) {
+  backToSets.onclick = () => {
+    cardsScreen.classList.add("hidden");
+    setsScreen.classList.remove("hidden");
+  };
+}
 
-backToCards.onclick = () => {
-  cardScreen.classList.add("hidden");
-  cardsScreen.classList.remove("hidden");
-};
+if (backToCards) {
+  backToCards.onclick = () => {
+    cardScreen.classList.add("hidden");
+    cardsScreen.classList.remove("hidden");
+  };
+}
 
 /* INIT */
 loadSets();
