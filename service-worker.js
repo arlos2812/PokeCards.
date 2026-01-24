@@ -1,6 +1,6 @@
-const CACHE_NAME = "pokecards-v3";
+const CACHE_NAME = "pokecards-v4";
 
-/* ARCHIVOS DE LA APP (INCLUYE LA FUENTE) */
+/* ARCHIVOS DE LA APP (HTML NUEVO, SIN ESCANEAR) */
 const APP_ASSETS = [
   "./",
   "./index.html",
@@ -20,7 +20,9 @@ const APP_ASSETS = [
 ========================= */
 self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(APP_ASSETS))
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.addAll(APP_ASSETS);
+    })
   );
   self.skipWaiting();
 });
@@ -83,7 +85,7 @@ self.addEventListener("fetch", event => {
     return;
   }
 
-  /* APP → cache first */
+  /* HTML / CSS / JS → cache first */
   event.respondWith(
     caches.match(event.request).then(cached =>
       cached || fetch(event.request)
