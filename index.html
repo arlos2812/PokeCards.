@@ -5,10 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PokeCards</title>
 
-  <!-- CSS -->
   <link rel="stylesheet" href="style.css">
-
-  <!-- PWA -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#ffcb05">
 </head>
@@ -20,13 +17,13 @@
     <div class="logo">PokeCards</div>
   </header>
 
-  <!-- LOADER GLOBAL -->
+  <!-- LOADER -->
   <div id="global-loading" class="loading hidden">
     <div class="spinner"></div>
   </div>
 
   <!-- =========================
-       PANTALLA EXPANSIONES
+       EXPANSIONES
   ========================== -->
   <section id="sets-screen">
     <h2 class="section-title">Expansiones</h2>
@@ -34,7 +31,7 @@
   </section>
 
   <!-- =========================
-       PANTALLA CARTAS
+       CARTAS DE EXPANSIÓN
   ========================== -->
   <section id="cards-screen" class="hidden">
     <button id="back-to-sets" class="load-more">⬅ Volver</button>
@@ -43,29 +40,19 @@
 
     <!-- FILTROS -->
     <div style="text-align:center; margin-bottom:10px;">
-      <select id="filter">
-        <!-- opciones las mete app.js -->
-      </select>
+      <select id="filter"></select>
     </div>
 
-    <!-- GRID CARTAS -->
     <div id="cards" class="grid"></div>
-
-    <!-- CARGAR MÁS -->
-    <button id="load-more" class="load-more">
-      ⬇ Cargar más cartas
-    </button>
   </section>
 
   <!-- =========================
-       PANTALLA CARTA ABIERTA
+       CARTA ABIERTA
   ========================== -->
   <section id="card-screen" class="hidden">
     <div id="card-detail"></div>
   </section>
 
-  <!-- JS -->
   <script src="app.js"></script>
-
 </body>
 </html>
