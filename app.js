@@ -56,12 +56,6 @@ const backToCards = document.getElementById("back-to-cards");
 const filterSelect = document.getElementById("filter");
 
 /* =========================
-   LOADER
-========================= */
-const loader = document.getElementById("global-loading");
-const loadingText = document.getElementById("loading-text");
-
-/* =========================
    ESTADO
 ========================= */
 let currentSetId = null;
@@ -76,16 +70,12 @@ let filtering = false;
    EXPANSIONES
 ========================= */
 async function loadSets() {
-  loader.classList.remove("hidden");
-  loadingText.textContent = "Cargando expansiones…";
-
   const res = await fetch("https://api.pokemontcg.io/v2/sets", {
     headers: { "X-Api-Key": API_KEY }
   });
   const data = await res.json();
 
   setsContainer.innerHTML = "";
-
   data.data.forEach(set => {
     const d = document.createElement("div");
     d.className = "set-card";
@@ -97,22 +87,19 @@ async function loadSets() {
     d.onclick = () => openSet(set.id, set.name);
     setsContainer.appendChild(d);
   });
-
-  loader.classList.add("hidden");
 }
 
 /* =========================
-   ABRIR EXPANSIÓN
+   ABRIR SET
 ========================= */
 function openSet(id, name) {
   currentSetId = id;
   page = 1;
   finished = false;
-  loading = false;
   filtering = false;
   allCards = [];
-
   cardsContainer.innerHTML = "";
+
   setsScreen.classList.add("hidden");
   cardsScreen.classList.remove("hidden");
   cardScreen.classList.add("hidden");
@@ -126,10 +113,7 @@ function openSet(id, name) {
 ========================= */
 async function loadNextPage(auto = false) {
   if (loading || finished) return;
-
   loading = true;
-  loader.classList.remove("hidden");
-  loadingText.textContent = "Cargando cartas…";
 
   const res = await fetch(
     `https://api.pokemontcg.io/v2/cards?q=set.id:${currentSetId}&page=${page}&pageSize=${pageSize}`,
@@ -137,9 +121,8 @@ async function loadNextPage(auto = false) {
   );
   const data = await res.json();
 
-  if (!data.data || data.data.length === 0) {
+  if (!data.data.length) {
     finished = true;
-    loader.classList.add("hidden");
     return;
   }
 
@@ -147,15 +130,18 @@ async function loadNextPage(auto = false) {
     allCards.push(card);
 
     const price =
-      card.cardmarket?.prices?.averageSellPrice != null
-        ? card.cardmarket.prices.averageSellPrice.toFixed(2) + " €"
-        : "—";
+      card.cardmarket?.prices?.averageSellPrice ??
+      card.tcgplayer?.prices?.holofoil?.market ??
+      card.tcgplayer?.prices?.normal?.market ??
+      null;
+
+    const priceText = price ? price.toFixed(2) + " €" : "Sin precio";
 
     const d = document.createElement("div");
     d.className = "card";
     d.innerHTML = `
       <img src="${card.images.small}">
-      <div class="price">${price}</div>
+      <div class="price">${priceText}</div>
       <h4>${card.name}</h4>
     `;
     d.onclick = () => openCard(card);
@@ -164,7 +150,6 @@ async function loadNextPage(auto = false) {
 
   page++;
   loading = false;
-  loader.classList.add("hidden");
 
   if (auto && !filtering) {
     setTimeout(() => loadNextPage(true), 300);
@@ -172,68 +157,19 @@ async function loadNextPage(auto = false) {
 }
 
 /* =========================
-   FILTROS
-========================= */
-filterSelect.onchange = () => {
-  filtering = true;
-  let list = [...allCards];
-
-  switch (filterSelect.value) {
-    case "az":
-      list.sort((a, b) => a.name.localeCompare(b.name));
-      break;
-    case "za":
-      list.sort((a, b) => b.name.localeCompare(a.name));
-      break;
-    case "set":
-      list.sort((a, b) => a.set.name.localeCompare(b.set.name));
-      break;
-    case "price-desc":
-      list.sort(
-        (a, b) =>
-          (b.cardmarket?.prices?.averageSellPrice || 0) -
-          (a.cardmarket?.prices?.averageSellPrice || 0)
-      );
-      break;
-    case "price-asc":
-      list.sort(
-        (a, b) =>
-          (a.cardmarket?.prices?.averageSellPrice || 0) -
-          (b.cardmarket?.prices?.averageSellPrice || 0)
-      );
-      break;
-  }
-
-  cardsContainer.innerHTML = "";
-  list.forEach(card => {
-    const price =
-      card.cardmarket?.prices?.averageSellPrice != null
-        ? card.cardmarket.prices.averageSellPrice.toFixed(2) + " €"
-        : "—";
-
-    const d = document.createElement("div");
-    d.className = "card";
-    d.innerHTML = `
-      <img src="${card.images.small}">
-      <div class="price">${price}</div>
-      <h4>${card.name}</h4>
-    `;
-    d.onclick = () => openCard(card);
-    cardsContainer.appendChild(d);
-  });
-};
-
-/* =========================
-   FICHA CARTA (ORIGINAL, COMPLETA)
+   FICHA CARTA (INFO COMPLETA)
 ========================= */
 function openCard(card) {
   cardsScreen.classList.add("hidden");
   cardScreen.classList.remove("hidden");
 
   const price =
-    card.cardmarket?.prices?.averageSellPrice != null
-      ? card.cardmarket.prices.averageSellPrice.toFixed(2) + " €"
-      : "—";
+    card.cardmarket?.prices?.averageSellPrice ??
+    card.tcgplayer?.prices?.holofoil?.market ??
+    card.tcgplayer?.prices?.normal?.market ??
+    null;
+
+  const priceText = price ? price.toFixed(2) + " €" : "Sin datos de mercado";
 
   cardDetail.innerHTML = `
     <img src="${card.images.large}">
@@ -241,17 +177,18 @@ function openCard(card) {
     <p><strong>Expansión:</strong> ${card.set.name}</p>
     <p><strong>Número:</strong> ${card.number}</p>
     <p><strong>Rareza:</strong> ${card.rarity || "—"}</p>
-    <p><strong>Precio medio:</strong> ${price}</p>
+    <p><strong>Precio medio:</strong> ${priceText}</p>
 
     <a target="_blank"
       href="https://www.pricecharting.com/search-products?q=${encodeURIComponent(card.name)}">
       PriceCharting
     </a><br>
 
-    <a target="_blank"
-      href="${card.cardmarket?.url || "https://www.cardmarket.com"}">
-      CardMarket
-    </a>
+    ${
+      card.cardmarket?.url
+        ? `<a target="_blank" href="${card.cardmarket.url}">CardMarket</a>`
+        : `<span>CardMarket no disponible</span>`
+    }
   `;
 }
 
@@ -268,5 +205,4 @@ backToCards.onclick = () => {
   cardsScreen.classList.remove("hidden");
 };
 
-/* INIT */
 loadSets();
