@@ -89,7 +89,10 @@ async function loadNextPage(){
     {headers:{"X-Api-Key":API_KEY}}
   );
   const data = await res.json();
-  if(!data.data.length){ finished=true; loadMoreBtn.classList.add("hidden"); }
+  if(!data.data.length){
+    finished=true;
+    loadMoreBtn.classList.add("hidden");
+  }
   data.data.forEach(card=>addCard(card));
   page++;
   loader.classList.add("hidden");
@@ -98,41 +101,91 @@ async function loadNextPage(){
 /* AÑADIR CARTA */
 function addCard(card){
   allCards.push(card);
-  const price = card.cardmarket?.prices?.averageSellPrice?.toFixed(2)+" €" || "—";
+  const price =
+    card.cardmarket?.prices?.averageSellPrice != null
+      ? card.cardmarket.prices.averageSellPrice.toFixed(2) + " €"
+      : "—";
+
   const d = document.createElement("div");
   d.className="card";
-  d.innerHTML=`<img src="${card.images.small}" loading="lazy"><div class="price">${price}</div><h4>${card.name}</h4>`;
+  d.innerHTML=`
+    <img src="${card.images.small}" loading="lazy">
+    <div class="price">${price}</div>
+    <h4>${card.name}</h4>
+  `;
   d.onclick=()=>openCard(card);
   cardsContainer.appendChild(d);
 }
 
 /* FILTROS */
-filterSelect.onchange=()=>{
-  let list=[...allCards];
-  switch(filterSelect.value){
-    case "az": list.sort((a,b)=>a.name.localeCompare(b.name)); break;
-    case "za": list.sort((a,b)=>b.name.localeCompare(a.name)); break;
+filterSelect.onchange = () => {
+  let list = [...allCards];
+
+  switch (filterSelect.value) {
+    case "az":
+      list.sort((a,b)=>a.name.localeCompare(b.name));
+      break;
+    case "za":
+      list.sort((a,b)=>b.name.localeCompare(a.name));
+      break;
     case "price-desc":
-      list.sort((a,b)=>(b.cardmarket?.prices?.averageSellPrice||0)-(a.cardmarket?.prices?.averageSellPrice||0));
+      list.sort(
+        (a,b)=>(b.cardmarket?.prices?.averageSellPrice||0) -
+               (a.cardmarket?.prices?.averageSellPrice||0)
+      );
       break;
     case "price-asc":
-      list.sort((a,b)=>(a.cardmarket?.prices?.averageSellPrice||0)-(b.cardmarket?.prices?.averageSellPrice||0));
+      list.sort(
+        (a,b)=>(a.cardmarket?.prices?.averageSellPrice||0) -
+               (b.cardmarket?.prices?.averageSellPrice||0)
+      );
+      break;
+    case "number-asc":
+      list.sort(
+        (a,b)=>parseInt(a.number) - parseInt(b.number)
+      );
       break;
   }
+
   cardsContainer.innerHTML="";
-  list.forEach(addCard);
+  list.forEach(card=>{
+    const price =
+      card.cardmarket?.prices?.averageSellPrice != null
+        ? card.cardmarket.prices.averageSellPrice.toFixed(2) + " €"
+        : "—";
+
+    const d = document.createElement("div");
+    d.className="card";
+    d.innerHTML=`
+      <img src="${card.images.small}" loading="lazy">
+      <div class="price">${price}</div>
+      <h4>${card.name}</h4>
+    `;
+    d.onclick=()=>openCard(card);
+    cardsContainer.appendChild(d);
+  });
 };
 
 /* CARTA */
 function openCard(card){
   cardsScreen.classList.add("hidden");
   cardScreen.classList.remove("hidden");
-  cardDetail.innerHTML=`<img src="${card.images.large}"><h2>${card.name}</h2>`;
+  cardDetail.innerHTML=`
+    <img src="${card.images.large}">
+    <h2>${card.name}</h2>
+    <p>Número: ${card.number}</p>
+  `;
 }
 
 /* BOTONES */
 loadMoreBtn.onclick=loadNextPage;
-document.getElementById("back-to-sets").onclick=()=>{cardsScreen.classList.add("hidden");setsScreen.classList.remove("hidden");};
-document.getElementById("back-to-cards").onclick=()=>{cardScreen.classList.add("hidden");cardsScreen.classList.remove("hidden");};
+document.getElementById("back-to-sets").onclick=()=>{
+  cardsScreen.classList.add("hidden");
+  setsScreen.classList.remove("hidden");
+};
+document.getElementById("back-to-cards").onclick=()=>{
+  cardScreen.classList.add("hidden");
+  cardsScreen.classList.remove("hidden");
+};
 
 loadSets();
