@@ -2,63 +2,20 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PokeCards</title>
-
-  <link rel="stylesheet" href="style.css">
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#ffcb05">
+  <title>TEST</title>
 </head>
-
 <body>
-
-  <!-- HEADER -->
-  <header>
-    <div class="logo">PokeCards</div>
-
-    <!-- 🎵 MÚSICA -->
-    <div class="music-bar">
-      <button id="music-toggle" class="load-more">▶️ Música</button>
-      <input id="music-volume" type="range" min="0" max="1" step="0.01" value="0.5">
-      <audio id="music-player"></audio>
-    </div>
-  </header>
-
-  <!-- LOADER -->
-  <div id="global-loading" class="loading hidden">
-    <div class="spinner"></div>
-  </div>
-
-  <!-- =========================
-       EXPANSIONES
-  ========================== -->
-  <section id="sets-screen">
-    <h2 class="section-title">Expansiones</h2>
-    <div id="sets" class="grid"></div>
-  </section>
-
-  <!-- =========================
-       CARTAS
-  ========================== -->
-  <section id="cards-screen" class="hidden">
-    <button id="back-to-sets" class="load-more">⬅ Volver</button>
-
-    <h2 id="set-title" class="section-title"></h2>
-
-    <div style="text-align:center; margin-bottom:10px;">
-      <select id="filter"></select>
-    </div>
-
-    <div id="cards" class="grid"></div>
-  </section>
-
-  <!-- =========================
-       CARTA ABIERTA
-  ========================== -->
-  <section id="card-screen" class="hidden">
-    <div id="card-detail"></div>
-  </section>
-
-  <script src="app.js"></script>
+  <h1>SI VES ESTO, LA APP FUNCIONA</h1>
+  <script>
+    fetch("https://api.pokemontcg.io/v2/sets")
+      .then(r => r.json())
+      .then(d => {
+        document.body.innerHTML += "<p>Sets cargados: " + d.data.length + "</p>";
+      })
+      .catch(e => {
+        document.body.innerHTML += "<p>ERROR</p>";
+        console.error(e);
+      });
+  </script>
 </body>
 </html>
