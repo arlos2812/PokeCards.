@@ -19,7 +19,6 @@
   </div>
 </header>
 
-<!-- 🔥 LOADER SIN TEXTO -->
 <div id="global-loading" class="loading hidden"></div>
 
 <section id="sets-screen">
@@ -28,10 +27,13 @@
 </section>
 
 <section id="cards-screen" class="hidden">
-  <button id="back-to-sets">⬅ Volver</button>
-  <h2 id="set-title"></h2>
+  <!-- 🔥 BARRA SUPERIOR -->
+  <div class="cards-topbar">
+    <button id="back-to-sets">⬅ Volver</button>
+    <select id="filter"></select>
+  </div>
 
-  <select id="filter"></select>
+  <h2 id="set-title"></h2>
   <div id="cards" class="grid"></div>
 </section>
 
