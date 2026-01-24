@@ -1,4 +1,4 @@
-const CACHE_NAME = "pokecards-v1";
+const CACHE_NAME = "pokecards-v2";
 
 const APP_ASSETS = [
   "./",
@@ -13,9 +13,7 @@ const APP_ASSETS = [
   "./sounds/song3.mp3"
 ];
 
-/* =========================
-   INSTALAR
-========================= */
+/* INSTALAR */
 self.addEventListener("install", event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(APP_ASSETS))
@@ -23,64 +21,52 @@ self.addEventListener("install", event => {
   self.skipWaiting();
 });
 
-/* =========================
-   ACTIVAR
-========================= */
+/* ACTIVAR */
 self.addEventListener("activate", event => {
   event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(
-        keys
-          .filter(key => key !== CACHE_NAME)
-          .map(key => caches.delete(key))
+        keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
       )
     )
   );
   self.clients.claim();
 });
 
-/* =========================
-   FETCH (ESTRATEGIA INTELIGENTE)
-========================= */
+/* FETCH */
 self.addEventListener("fetch", event => {
   const url = new URL(event.request.url);
 
-  // 📦 API Pokémon → network first, fallback cache
+  /* API Pokémon */
   if (url.origin.includes("pokemontcg.io")) {
     event.respondWith(
       fetch(event.request)
-        .then(response => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then(cache =>
-            cache.put(event.request, clone)
-          );
-          return response;
+        .then(res => {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then(c => c.put(event.request, clone));
+          return res;
         })
         .catch(() => caches.match(event.request))
     );
     return;
   }
 
-  // 🖼️ Imágenes → cache first
+  /* IMÁGENES */
   if (event.request.destination === "image") {
     event.respondWith(
       caches.match(event.request).then(cached =>
-        cached || fetch(event.request).then(response => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then(cache =>
-            cache.put(event.request, clone)
-          );
-          return response;
+        cached || fetch(event.request).then(res => {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then(c => c.put(event.request, clone));
+          return res;
         })
       )
     );
     return;
   }
 
-  // 📄 App → cache first
+  /* APP */
   event.respondWith(
-    caches.match(event.request).then(cached =>
-      cached || fetch(event.request)
-    )
+    caches.match(event.request).then(cached => cached || fetch(event.request))
   );
 });
