@@ -55,6 +55,8 @@ const backToSets = document.getElementById("back-to-sets");
 const backToCards = document.getElementById("back-to-cards");
 const filterSelect = document.getElementById("filter");
 
+const loadMoreBtn = document.getElementById("load-more");
+
 /* =========================
    LOADER
 ========================= */
@@ -66,7 +68,7 @@ const loadingText = document.getElementById("loading-text");
 ========================= */
 let currentSetId = null;
 let page = 1;
-let pageSize = 50;
+let pageSize = 30;
 let loading = false;
 let finished = false;
 let allCards = [];
@@ -89,7 +91,7 @@ async function loadSets() {
     const d = document.createElement("div");
     d.className = "set-card";
     d.innerHTML = `
-      <img src="${set.images.logo}">
+      <img src="${set.images.logo}" loading="lazy">
       <h3>${set.name}</h3>
       <div class="set-date">${set.releaseDate || ""}</div>
     `;
@@ -116,13 +118,15 @@ function openSet(id, name) {
   cardScreen.classList.add("hidden");
 
   setTitle.textContent = name;
-  loadNextPage(true);
+  loadMoreBtn.classList.remove("hidden");
+
+  loadNextPage();
 }
 
 /* =========================
-   CARGA 50 EN 50 AUTOMÁTICA
+   CARGAR CARTAS
 ========================= */
-async function loadNextPage(auto = false) {
+async function loadNextPage() {
   if (loading || finished) return;
 
   loading = true;
@@ -137,8 +141,8 @@ async function loadNextPage(auto = false) {
 
   if (!data.data || data.data.length === 0) {
     finished = true;
-    loadingText.textContent = "No hay más cartas";
-    setTimeout(() => loader.classList.add("hidden"), 500);
+    loadMoreBtn.classList.add("hidden");
+    loader.classList.add("hidden");
     return;
   }
 
@@ -153,7 +157,7 @@ async function loadNextPage(auto = false) {
     const d = document.createElement("div");
     d.className = "card";
     d.innerHTML = `
-      <img src="${card.images.small}">
+      <img src="${card.images.small}" loading="lazy">
       <div class="price">${price}</div>
       <h4>${card.name}</h4>
     `;
@@ -164,11 +168,12 @@ async function loadNextPage(auto = false) {
   page++;
   loading = false;
   loader.classList.add("hidden");
-
-  if (auto) {
-    setTimeout(() => loadNextPage(true), 300);
-  }
 }
+
+/* =========================
+   BOTÓN CARGAR MÁS
+========================= */
+loadMoreBtn.onclick = () => loadNextPage();
 
 /* =========================
    FILTROS
@@ -176,28 +181,8 @@ async function loadNextPage(auto = false) {
 filterSelect.onchange = () => {
   let list = [...allCards];
 
-  switch (filterSelect.value) {
-    case "az":
-      list.sort((a, b) => a.name.localeCompare(b.name));
-      break;
-    case "za":
-      list.sort((a, b) => b.name.localeCompare(a.name));
-      break;
-    case "price-desc":
-      list.sort(
-        (a, b) =>
-          (b.cardmarket?.prices?.averageSellPrice || 0) -
-          (a.cardmarket?.prices?.averageSellPrice || 0)
-      );
-      break;
-    case "price-asc":
-      list.sort(
-        (a, b) =>
-          (a.cardmarket?.prices?.averageSellPrice || 0) -
-          (b.cardmarket?.prices?.averageSellPrice || 0)
-      );
-      break;
-  }
+  if (filterSelect.value === "az") list.sort((a, b) => a.name.localeCompare(b.name));
+  if (filterSelect.value === "za") list.sort((a, b) => b.name.localeCompare(a.name));
 
   cardsContainer.innerHTML = "";
   list.forEach(card => {
@@ -209,7 +194,7 @@ filterSelect.onchange = () => {
     const d = document.createElement("div");
     d.className = "card";
     d.innerHTML = `
-      <img src="${card.images.small}">
+      <img src="${card.images.small}" loading="lazy">
       <div class="price">${price}</div>
       <h4>${card.name}</h4>
     `;
@@ -237,74 +222,8 @@ function openCard(card) {
     <p><strong>Número:</strong> ${card.number}</p>
     <p><strong>Rareza:</strong> ${card.rarity || "—"}</p>
     <p><strong>Precio medio:</strong> ${price}</p>
-    <a target="_blank"
-      href="https://www.pricecharting.com/search-products?q=${encodeURIComponent(card.name)}">
-      PriceCharting
-    </a><br>
-    <a target="_blank"
-      href="${card.cardmarket?.url || "https://www.cardmarket.com"}">
-      CardMarket
-    </a>
   `;
 }
-
-/* =========================
-   ESCANEO
-========================= */
-const scanBtn = document.getElementById("scan-btn");
-const cameraInput = document.getElementById("camera-input");
-
-scanBtn.onclick = () => cameraInput.click();
-
-cameraInput.onchange = e => {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  setsScreen.classList.add("hidden");
-  cardsScreen.classList.add("hidden");
-  cardScreen.classList.remove("hidden");
-
-  cardDetail.innerHTML = `
-    <h2>Escaneo de carta</h2>
-    <img src="${URL.createObjectURL(file)}" style="max-width:300px">
-    <p>Escribe el nombre:</p>
-    <input id="scan-name">
-    <button id="scan-search">Buscar</button>
-    <div id="scan-results"></div>
-  `;
-
-  document.getElementById("scan-search").onclick = async () => {
-    const name = document.getElementById("scan-name").value;
-    if (!name) return;
-
-    const res = await fetch(
-      `https://api.pokemontcg.io/v2/cards?q=name:${name}*`,
-      { headers: { "X-Api-Key": API_KEY } }
-    );
-    const data = await res.json();
-
-    const results = document.getElementById("scan-results");
-    results.innerHTML = "";
-
-    data.data.slice(0, 5).forEach(card => {
-      const price =
-        card.cardmarket?.prices?.averageSellPrice != null
-          ? card.cardmarket.prices.averageSellPrice.toFixed(2) + " €"
-          : "—";
-
-      const d = document.createElement("div");
-      d.className = "card";
-      d.innerHTML = `
-        <img src="${card.images.small}">
-        <div class="price">${price}</div>
-        <h4>${card.name}</h4>
-        <p>${card.set.name}</p>
-      `;
-      d.onclick = () => openCard(card);
-      results.appendChild(d);
-    });
-  };
-};
 
 /* =========================
    VOLVER
