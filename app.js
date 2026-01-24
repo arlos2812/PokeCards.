@@ -29,48 +29,39 @@ const loader = document.getElementById("global-loading");
 /* =========================
    FILTROS
 ========================= */
-if (filterSelect) {
-  filterSelect.innerHTML = `
-    <option value="az">A–Z</option>
-    <option value="za">Z–A</option>
-    <option value="price-desc">💰 Precio mayor → menor</option>
-    <option value="price-asc">💰 Precio menor → mayor</option>
-    <option value="number-asc">🔢 Número de carta</option>
-  `;
-}
+filterSelect.innerHTML = `
+  <option value="az">A–Z</option>
+  <option value="za">Z–A</option>
+  <option value="price-desc">💰 Precio mayor → menor</option>
+  <option value="price-asc">💰 Precio menor → mayor</option>
+  <option value="number-asc">🔢 Número de carta</option>
+`;
 
 /* =========================
-   EXPANSIONES (CON FECHA)
+   EXPANSIONES
 ========================= */
 async function loadSets() {
-  try {
-    loader?.classList.remove("hidden");
+  loader.classList.remove("hidden");
 
-    const res = await fetch("https://api.pokemontcg.io/v2/sets", {
-      headers: { "X-Api-Key": API_KEY }
-    });
-    const data = await res.json();
+  const res = await fetch("https://api.pokemontcg.io/v2/sets", {
+    headers: { "X-Api-Key": API_KEY }
+  });
+  const data = await res.json();
 
-    setsContainer.innerHTML = "";
+  setsContainer.innerHTML = "";
+  data.data.forEach(set => {
+    const d = document.createElement("div");
+    d.className = "set-card";
+    d.innerHTML = `
+      <img src="${set.images.logo}" loading="lazy">
+      <h3>${set.name}</h3>
+      <div class="set-date">${set.releaseDate || ""}</div>
+    `;
+    d.onclick = () => openSet(set.id, set.name);
+    setsContainer.appendChild(d);
+  });
 
-    data.data.forEach(set => {
-      const d = document.createElement("div");
-      d.className = "set-card";
-      d.innerHTML = `
-        <img src="${set.images.logo}" loading="lazy">
-        <h3>${set.name}</h3>
-        <div class="set-date">${set.releaseDate || ""}</div>
-      `;
-      d.onclick = () => openSet(set.id, set.name);
-      setsContainer.appendChild(d);
-    });
-
-  } catch (e) {
-    setsContainer.innerHTML = "<p>Error cargando expansiones</p>";
-    console.error(e);
-  } finally {
-    loader?.classList.add("hidden");
-  }
+  loader.classList.add("hidden");
 }
 
 /* =========================
@@ -99,40 +90,31 @@ function openSet(id, name) {
 async function loadNextPage() {
   if (finished) return;
 
-  try {
-    loader?.classList.remove("hidden");
+  const res = await fetch(
+    `https://api.pokemontcg.io/v2/cards?q=set.id:${currentSetId}&page=${page}&pageSize=${pageSize}`,
+    { headers: { "X-Api-Key": API_KEY } }
+  );
+  const data = await res.json();
 
-    const res = await fetch(
-      `https://api.pokemontcg.io/v2/cards?q=set.id:${currentSetId}&page=${page}&pageSize=${pageSize}`,
-      { headers: { "X-Api-Key": API_KEY } }
-    );
-    const data = await res.json();
-
-    if (!data.data.length) {
-      finished = true;
-      loadMoreBtn.classList.add("hidden");
-      return;
-    }
-
-    data.data.forEach(card => {
-      if (!loadedCardIds.has(card.id)) {
-        loadedCardIds.add(card.id);
-        allCards.push(card);
-        renderCard(card);
-      }
-    });
-
-    page++;
-
-  } catch (e) {
-    console.error(e);
-  } finally {
-    loader?.classList.add("hidden");
+  if (!data.data.length) {
+    finished = true;
+    loadMoreBtn.classList.add("hidden");
+    return;
   }
+
+  data.data.forEach(card => {
+    if (!loadedCardIds.has(card.id)) {
+      loadedCardIds.add(card.id);
+      allCards.push(card);
+      renderCard(card);
+    }
+  });
+
+  page++;
 }
 
 /* =========================
-   PINTAR CARTA
+   RENDER CARTA
 ========================= */
 function renderCard(card) {
   const price =
@@ -158,23 +140,13 @@ filterSelect.onchange = () => {
   let list = [...allCards];
 
   switch (filterSelect.value) {
-    case "az":
-      list.sort((a,b)=>a.name.localeCompare(b.name));
-      break;
-    case "za":
-      list.sort((a,b)=>b.name.localeCompare(a.name));
-      break;
+    case "az": list.sort((a,b)=>a.name.localeCompare(b.name)); break;
+    case "za": list.sort((a,b)=>b.name.localeCompare(a.name)); break;
     case "price-desc":
-      list.sort(
-        (a,b)=>(b.cardmarket?.prices?.averageSellPrice||0) -
-               (a.cardmarket?.prices?.averageSellPrice||0)
-      );
+      list.sort((a,b)=>(b.cardmarket?.prices?.averageSellPrice||0)-(a.cardmarket?.prices?.averageSellPrice||0));
       break;
     case "price-asc":
-      list.sort(
-        (a,b)=>(a.cardmarket?.prices?.averageSellPrice||0) -
-               (b.cardmarket?.prices?.averageSellPrice||0)
-      );
+      list.sort((a,b)=>(a.cardmarket?.prices?.averageSellPrice||0)-(b.cardmarket?.prices?.averageSellPrice||0));
       break;
     case "number-asc":
       list.sort((a,b)=>parseInt(a.number)-parseInt(b.number));
@@ -186,7 +158,7 @@ filterSelect.onchange = () => {
 };
 
 /* =========================
-   CARTA ABIERTA (VOLVER ARRIBA)
+   CARTA ABIERTA
 ========================= */
 function openCard(card) {
   cardsScreen.classList.add("hidden");
@@ -205,7 +177,7 @@ function openCard(card) {
     card.cardmarket?.url || "https://www.cardmarket.com";
 
   cardDetail.innerHTML = `
-    <button id="back-to-cards-top" class="load-more">
+    <button id="back-to-cards-top" class="load-more card-back-fixed">
       ⬅ Volver
     </button>
 
@@ -215,11 +187,9 @@ function openCard(card) {
     <p><strong>Expansión:</strong> ${card.set.name}</p>
     <p><strong>Número:</strong> ${card.number}</p>
     <p><strong>Rareza:</strong> ${card.rarity || "—"}</p>
-    <p><strong>Precio medio:</strong>
-      <span class="price">${price}</span>
-    </p>
+    <p><strong>Precio medio:</strong> <span class="price">${price}</span></p>
 
-    <div style="margin-top:16px;">
+    <div>
       <a href="${priceChartingUrl}" target="_blank" class="load-more">
         🔗 PriceCharting
       </a>
