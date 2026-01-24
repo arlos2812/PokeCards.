@@ -109,15 +109,31 @@ h2 {
   width: 100%;
 }
 
-/* LOADER (NO BLOQUEA) */
+/* 🔥 LOADER CORRECTO */
 .loading {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,.85);
+  background: rgba(0, 0, 0, 0.85);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 999;
+}
+
+.loading::after {
+  content: "";
+  width: 48px;
+  height: 48px;
+  border: 6px solid #444;
+  border-top: 6px solid #ffcb05;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .hidden {
