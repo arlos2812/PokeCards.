@@ -2,20 +2,42 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>TEST</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PokeCards</title>
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-  <h1>SI VES ESTO, LA APP FUNCIONA</h1>
-  <script>
-    fetch("https://api.pokemontcg.io/v2/sets")
-      .then(r => r.json())
-      .then(d => {
-        document.body.innerHTML += "<p>Sets cargados: " + d.data.length + "</p>";
-      })
-      .catch(e => {
-        document.body.innerHTML += "<p>ERROR</p>";
-        console.error(e);
-      });
-  </script>
+
+<header>
+  <div class="logo">PokeCards</div>
+
+  <div class="music-bar">
+    <button id="music-toggle">▶️ Música</button>
+    <input id="music-volume" type="range" min="0" max="1" step="0.01" value="0.5">
+    <audio id="music-player"></audio>
+  </div>
+</header>
+
+<div id="global-loading" class="loading hidden">Cargando…</div>
+
+<section id="sets-screen">
+  <h2>Expansiones</h2>
+  <div id="sets" class="grid"></div>
+</section>
+
+<section id="cards-screen" class="hidden">
+  <button id="back-to-sets">⬅ Volver</button>
+  <h2 id="set-title"></h2>
+
+  <select id="filter"></select>
+  <div id="cards" class="grid"></div>
+</section>
+
+<section id="card-screen" class="hidden">
+  <div id="card-detail"></div>
+</section>
+
+<script src="app.js"></script>
 </body>
 </html>
