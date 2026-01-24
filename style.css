@@ -109,7 +109,7 @@ h2 {
   width: 100%;
 }
 
-/* LOADER */
+/* LOADER (NO BLOQUEA) */
 .loading {
   position: fixed;
   inset: 0;
@@ -122,4 +122,5 @@ h2 {
 
 .hidden {
   display: none !important;
+  pointer-events: none !important;
 }
