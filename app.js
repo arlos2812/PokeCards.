@@ -29,35 +29,48 @@ const loader = document.getElementById("global-loading");
 /* =========================
    FILTROS
 ========================= */
-filterSelect.innerHTML = `
-  <option value="az">A–Z</option>
-  <option value="za">Z–A</option>
-  <option value="price-desc">💰 Precio mayor → menor</option>
-  <option value="price-asc">💰 Precio menor → mayor</option>
-  <option value="number-asc">🔢 Número de carta</option>
-`;
+if (filterSelect) {
+  filterSelect.innerHTML = `
+    <option value="az">A–Z</option>
+    <option value="za">Z–A</option>
+    <option value="price-desc">💰 Precio mayor → menor</option>
+    <option value="price-asc">💰 Precio menor → mayor</option>
+    <option value="number-asc">🔢 Número de carta</option>
+  `;
+}
 
 /* =========================
    EXPANSIONES
 ========================= */
 async function loadSets() {
-  const res = await fetch("https://api.pokemontcg.io/v2/sets", {
-    headers: { "X-Api-Key": API_KEY }
-  });
-  const data = await res.json();
+  try {
+    loader?.classList.remove("hidden");
 
-  setsContainer.innerHTML = "";
-  data.data.forEach(set => {
-    const d = document.createElement("div");
-    d.className = "set-card";
-    d.innerHTML = `
-      <img src="${set.images.logo}">
-      <h3>${set.name}</h3>
-      <div class="set-date">${set.releaseDate || ""}</div>
-    `;
-    d.onclick = () => openSet(set.id, set.name);
-    setsContainer.appendChild(d);
-  });
+    const res = await fetch("https://api.pokemontcg.io/v2/sets", {
+      headers: { "X-Api-Key": API_KEY }
+    });
+    const data = await res.json();
+
+    setsContainer.innerHTML = "";
+
+    data.data.forEach(set => {
+      const d = document.createElement("div");
+      d.className = "set-card";
+      d.innerHTML = `
+        <img src="${set.images.logo}" loading="lazy">
+        <h3>${set.name}</h3>
+        <div class="set-date">${set.releaseDate || ""}</div>
+      `;
+      d.onclick = () => openSet(set.id, set.name);
+      setsContainer.appendChild(d);
+    });
+
+  } catch (e) {
+    setsContainer.innerHTML = "<p>Error cargando expansiones</p>";
+    console.error(e);
+  } finally {
+    loader?.classList.add("hidden");
+  }
 }
 
 /* =========================
@@ -86,31 +99,40 @@ function openSet(id, name) {
 async function loadNextPage() {
   if (finished) return;
 
-  const res = await fetch(
-    `https://api.pokemontcg.io/v2/cards?q=set.id:${currentSetId}&page=${page}&pageSize=${pageSize}`,
-    { headers: { "X-Api-Key": API_KEY } }
-  );
-  const data = await res.json();
+  try {
+    loader?.classList.remove("hidden");
 
-  if (!data.data.length) {
-    finished = true;
-    loadMoreBtn.classList.add("hidden");
-    return;
-  }
+    const res = await fetch(
+      `https://api.pokemontcg.io/v2/cards?q=set.id:${currentSetId}&page=${page}&pageSize=${pageSize}`,
+      { headers: { "X-Api-Key": API_KEY } }
+    );
+    const data = await res.json();
 
-  data.data.forEach(card => {
-    if (!loadedCardIds.has(card.id)) {
-      loadedCardIds.add(card.id);
-      allCards.push(card);
-      renderCard(card);
+    if (!data.data.length) {
+      finished = true;
+      loadMoreBtn.classList.add("hidden");
+      return;
     }
-  });
 
-  page++;
+    data.data.forEach(card => {
+      if (!loadedCardIds.has(card.id)) {
+        loadedCardIds.add(card.id);
+        allCards.push(card);
+        renderCard(card);
+      }
+    });
+
+    page++;
+
+  } catch (e) {
+    console.error(e);
+  } finally {
+    loader?.classList.add("hidden");
+  }
 }
 
 /* =========================
-   PINTAR CARTA (SOLO UI)
+   PINTAR CARTA
 ========================= */
 function renderCard(card) {
   const price =
@@ -121,7 +143,7 @@ function renderCard(card) {
   const d = document.createElement("div");
   d.className = "card";
   d.innerHTML = `
-    <img src="${card.images.small}">
+    <img src="${card.images.small}" loading="lazy">
     <div class="price">${price}</div>
     <h4>${card.name}</h4>
   `;
@@ -130,7 +152,7 @@ function renderCard(card) {
 }
 
 /* =========================
-   FILTROS (SIN DUPLICAR)
+   FILTROS
 ========================= */
 filterSelect.onchange = () => {
   let list = [...allCards];
@@ -168,10 +190,10 @@ function openCard(card) {
   cardDetail.innerHTML = `
     <img src="${card.images.large}">
     <h2>${card.name}</h2>
-    <p>Expansión: ${card.set.name}</p>
-    <p>Número: ${card.number}</p>
-    <p>Rareza: ${card.rarity || "—"}</p>
-    <p>Precio medio: <span class="price">${price}</span></p>
+    <p><strong>Expansión:</strong> ${card.set.name}</p>
+    <p><strong>Número:</strong> ${card.number}</p>
+    <p><strong>Rareza:</strong> ${card.rarity || "—"}</p>
+    <p><strong>Precio medio:</strong> <span class="price">${price}</span></p>
 
     <a class="load-more" target="_blank"
       href="https://www.pricecharting.com/search-products?q=${encodeURIComponent(card.name + ' ' + card.set.name)}">
@@ -189,10 +211,12 @@ function openCard(card) {
    BOTONES
 ========================= */
 loadMoreBtn.onclick = loadNextPage;
+
 document.getElementById("back-to-sets").onclick = () => {
   cardsScreen.classList.add("hidden");
   setsScreen.classList.remove("hidden");
 };
+
 document.getElementById("back-to-cards").onclick = () => {
   cardScreen.classList.add("hidden");
   cardsScreen.classList.remove("hidden");
