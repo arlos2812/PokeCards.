@@ -3,7 +3,11 @@ const music = document.getElementById("music-player");
 const toggle = document.getElementById("music-toggle");
 const volume = document.getElementById("music-volume");
 
-const songs = ["sounds/song1.mp3", "sounds/song2.mp3"];
+const songs = [
+  "sounds/song1.mp3",
+  "sounds/song2.mp3",
+  "sounds/song3.mp3"
+];
 let playing = false;
 let songIndex = 0;
 
@@ -174,3 +178,4 @@ document.getElementById("back-to-sets").onclick = () => {
 
 /* INIT */
 loadSets();
+
