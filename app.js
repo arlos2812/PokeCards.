@@ -1,7 +1,14 @@
 const API_KEY = "3d240d93-e6be-4c24-a9fc-c7b4593dd5fc";
 
-/* 🎵 MÚSICA */
-const playlist = ["sounds/song1.mp3","sounds/song2.mp3","sounds/song3.mp3"];
+/* =========================
+   🎵 MÚSICA
+========================= */
+const playlist = [
+  "sounds/song1.mp3",
+  "sounds/song2.mp3",
+  "sounds/song3.mp3"
+];
+
 const music = document.getElementById("music-player");
 const musicToggle = document.getElementById("music-toggle");
 const volume = document.getElementById("music-volume");
@@ -11,10 +18,11 @@ let playing = false;
 
 if (music && musicToggle && volume) {
   music.volume = volume.value;
+
   musicToggle.onclick = () => {
     if (!playing) {
       music.src = playlist[songIndex];
-      music.play().catch(()=>{});
+      music.play().catch(() => {});
       playing = true;
       musicToggle.textContent = "⏸️ Música";
     } else {
@@ -23,27 +31,36 @@ if (music && musicToggle && volume) {
       musicToggle.textContent = "▶️ Música";
     }
   };
-  volume.oninput = () => music.volume = volume.value;
+
+  volume.oninput = () => (music.volume = volume.value);
+
   music.onended = () => {
     songIndex = (songIndex + 1) % playlist.length;
     music.src = playlist[songIndex];
-    music.play().catch(()=>{});
+    music.play().catch(() => {});
   };
 }
 
-/* UI */
+/* =========================
+   UI
+========================= */
 const setsScreen = document.getElementById("sets-screen");
 const cardsScreen = document.getElementById("cards-screen");
 const cardScreen = document.getElementById("card-screen");
+
 const setsContainer = document.getElementById("sets");
 const cardsContainer = document.getElementById("cards");
 const cardDetail = document.getElementById("card-detail");
+
 const setTitle = document.getElementById("set-title");
 const filterSelect = document.getElementById("filter");
 const loadMoreBtn = document.getElementById("load-more");
+
 const loader = document.getElementById("global-loading");
 
-/* FILTROS FORZADOS */
+/* =========================
+   FORZAR FILTROS
+========================= */
 filterSelect.innerHTML = `
   <option value="az">A–Z</option>
   <option value="za">Z–A</option>
@@ -52,122 +69,190 @@ filterSelect.innerHTML = `
   <option value="number-asc">🔢 Número de carta</option>
 `;
 
-/* ESTADO */
+/* =========================
+   ESTADO
+========================= */
 let currentSetId = null;
 let page = 1;
 let pageSize = 30;
 let allCards = [];
 let finished = false;
 
-/* EXPANSIONES */
+/* =========================
+   EXPANSIONES (CON FECHA)
+========================= */
 async function loadSets() {
   loader.classList.remove("hidden");
-  const res = await fetch("https://api.pokemontcg.io/v2/sets",{headers:{"X-Api-Key":API_KEY}});
+
+  const res = await fetch("https://api.pokemontcg.io/v2/sets", {
+    headers: { "X-Api-Key": API_KEY }
+  });
   const data = await res.json();
+
   setsContainer.innerHTML = "";
+
   data.data.forEach(set => {
     const d = document.createElement("div");
     d.className = "set-card";
-    d.innerHTML = `<img src="${set.images.logo}" loading="lazy"><h3>${set.name}</h3>`;
+    d.innerHTML = `
+      <img src="${set.images.logo}" loading="lazy">
+      <h3>${set.name}</h3>
+      <div class="set-date">${set.releaseDate || ""}</div>
+    `;
     d.onclick = () => openSet(set.id, set.name);
     setsContainer.appendChild(d);
   });
+
   loader.classList.add("hidden");
 }
 
-/* ABRIR SET */
-function openSet(id,name){
-  currentSetId=id;
-  page=1;
-  finished=false;
-  allCards=[];
-  cardsContainer.innerHTML="";
-  setTitle.textContent=name;
+/* =========================
+   ABRIR SET
+========================= */
+function openSet(id, name) {
+  currentSetId = id;
+  page = 1;
+  finished = false;
+  allCards = [];
+  cardsContainer.innerHTML = "";
+
+  setTitle.textContent = name;
   setsScreen.classList.add("hidden");
   cardsScreen.classList.remove("hidden");
   cardScreen.classList.add("hidden");
   loadMoreBtn.classList.remove("hidden");
+
   loadNextPage();
 }
 
-/* CARGAR CARTAS */
-async function loadNextPage(){
-  if(finished) return;
+/* =========================
+   CARGAR CARTAS
+========================= */
+async function loadNextPage() {
+  if (finished) return;
+
   loader.classList.remove("hidden");
+
   const res = await fetch(
     `https://api.pokemontcg.io/v2/cards?q=set.id:${currentSetId}&page=${page}&pageSize=${pageSize}`,
-    {headers:{"X-Api-Key":API_KEY}}
+    { headers: { "X-Api-Key": API_KEY } }
   );
   const data = await res.json();
-  if(!data.data.length){
-    finished=true;
+
+  if (!data.data.length) {
+    finished = true;
     loadMoreBtn.classList.add("hidden");
   }
+
   data.data.forEach(addCard);
   page++;
+
   loader.classList.add("hidden");
 }
 
-/* AÑADIR CARTA */
-function addCard(card){
+/* =========================
+   AÑADIR CARTA
+========================= */
+function addCard(card) {
   allCards.push(card);
+
   const price =
     card.cardmarket?.prices?.averageSellPrice != null
       ? card.cardmarket.prices.averageSellPrice.toFixed(2) + " €"
       : "—";
 
   const d = document.createElement("div");
-  d.className="card";
-  d.innerHTML=`
+  d.className = "card";
+  d.innerHTML = `
     <img src="${card.images.small}" loading="lazy">
     <div class="price">${price}</div>
     <h4>${card.name}</h4>
   `;
-  d.onclick=()=>openCard(card);
+  d.onclick = () => openCard(card);
   cardsContainer.appendChild(d);
 }
 
-/* FILTROS */
-filterSelect.onchange=()=>{
-  let list=[...allCards];
-  switch(filterSelect.value){
-    case "az": list.sort((a,b)=>a.name.localeCompare(b.name)); break;
-    case "za": list.sort((a,b)=>b.name.localeCompare(a.name)); break;
+/* =========================
+   FILTROS
+========================= */
+filterSelect.onchange = () => {
+  let list = [...allCards];
+
+  switch (filterSelect.value) {
+    case "az":
+      list.sort((a, b) => a.name.localeCompare(b.name));
+      break;
+    case "za":
+      list.sort((a, b) => b.name.localeCompare(a.name));
+      break;
     case "price-desc":
-      list.sort((a,b)=>(b.cardmarket?.prices?.averageSellPrice||0)-(a.cardmarket?.prices?.averageSellPrice||0));
+      list.sort(
+        (a, b) =>
+          (b.cardmarket?.prices?.averageSellPrice || 0) -
+          (a.cardmarket?.prices?.averageSellPrice || 0)
+      );
       break;
     case "price-asc":
-      list.sort((a,b)=>(a.cardmarket?.prices?.averageSellPrice||0)-(b.cardmarket?.prices?.averageSellPrice||0));
+      list.sort(
+        (a, b) =>
+          (a.cardmarket?.prices?.averageSellPrice || 0) -
+          (b.cardmarket?.prices?.averageSellPrice || 0)
+      );
       break;
     case "number-asc":
-      list.sort((a,b)=>parseInt(a.number)-parseInt(b.number));
+      list.sort((a, b) => parseInt(a.number) - parseInt(b.number));
       break;
   }
-  cardsContainer.innerHTML="";
+
+  cardsContainer.innerHTML = "";
   list.forEach(addCard);
 };
 
-/* CARTA ABIERTA (CENTRADA, SIN ENLACES) */
-function openCard(card){
+/* =========================
+   CARTA ABIERTA (CON ENLACES)
+========================= */
+function openCard(card) {
   cardsScreen.classList.add("hidden");
   cardScreen.classList.remove("hidden");
-  cardDetail.innerHTML=`
+
+  const price =
+    card.cardmarket?.prices?.averageSellPrice != null
+      ? card.cardmarket.prices.averageSellPrice.toFixed(2) + " €"
+      : "—";
+
+  cardDetail.innerHTML = `
     <img src="${card.images.large}">
     <h2>${card.name}</h2>
-    <p>Número: ${card.number}</p>
-    <p>Rareza: ${card.rarity || "—"}</p>
+
+    <p><strong>Expansión:</strong> ${card.set.name}</p>
+    <p><strong>Número:</strong> ${card.number}</p>
+    <p><strong>Rareza:</strong> ${card.rarity || "—"}</p>
+    <p><strong>Precio medio:</strong> <span class="price">${price}</span></p>
+
+    <p>
+      <a href="https://www.pricecharting.com/search-products?q=${encodeURIComponent(card.name)}"
+         target="_blank">PriceCharting</a>
+      |
+      <a href="${card.cardmarket?.url || "https://www.cardmarket.com"}"
+         target="_blank">CardMarket</a>
+    </p>
   `;
 }
 
-/* BOTONES */
-loadMoreBtn.onclick=loadNextPage;
-document.getElementById("back-to-sets").onclick=()=>{
+/* =========================
+   BOTONES
+========================= */
+loadMoreBtn.onclick = loadNextPage;
+
+document.getElementById("back-to-sets").onclick = () => {
   cardsScreen.classList.add("hidden");
   setsScreen.classList.remove("hidden");
 };
-document.getElementById("back-to-cards").onclick=()=>{
+
+document.getElementById("back-to-cards").onclick = () => {
   cardScreen.classList.add("hidden");
   cardsScreen.classList.remove("hidden");
 };
 
+/* INIT */
 loadSets();
