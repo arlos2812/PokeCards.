@@ -15,6 +15,13 @@
   <!-- HEADER -->
   <header>
     <div class="logo">PokeCards</div>
+
+    <!-- 🎵 MÚSICA -->
+    <div class="music-bar">
+      <button id="music-toggle" class="load-more">▶️ Música</button>
+      <input id="music-volume" type="range" min="0" max="1" step="0.01" value="0.5">
+      <audio id="music-player"></audio>
+    </div>
   </header>
 
   <!-- LOADER -->
@@ -31,14 +38,13 @@
   </section>
 
   <!-- =========================
-       CARTAS DE EXPANSIÓN
+       CARTAS
   ========================== -->
   <section id="cards-screen" class="hidden">
     <button id="back-to-sets" class="load-more">⬅ Volver</button>
 
     <h2 id="set-title" class="section-title"></h2>
 
-    <!-- FILTROS -->
     <div style="text-align:center; margin-bottom:10px;">
       <select id="filter"></select>
     </div>
