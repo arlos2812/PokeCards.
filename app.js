@@ -70,6 +70,7 @@ let pageSize = 50;
 let loading = false;
 let finished = false;
 let allCards = [];
+let filtering = false;
 
 /* =========================
    EXPANSIONES
@@ -108,6 +109,7 @@ function openSet(id, name) {
   page = 1;
   finished = false;
   loading = false;
+  filtering = false;
   allCards = [];
 
   cardsContainer.innerHTML = "";
@@ -164,15 +166,17 @@ async function loadNextPage(auto = false) {
   loading = false;
   loader.classList.add("hidden");
 
-  if (auto) {
+  if (auto && !filtering) {
     setTimeout(() => loadNextPage(true), 300);
   }
 }
 
 /* =========================
-   FILTROS (AÑADIDO SIN ROMPER NADA)
+   FILTROS (FUNCIONANDO)
 ========================= */
 filterSelect.onchange = () => {
+  filtering = true;
+
   let list = [...allCards];
 
   switch (filterSelect.value) {
@@ -202,6 +206,7 @@ filterSelect.onchange = () => {
   }
 
   cardsContainer.innerHTML = "";
+
   list.forEach(card => {
     const price =
       card.cardmarket?.prices?.averageSellPrice != null
@@ -221,7 +226,7 @@ filterSelect.onchange = () => {
 };
 
 /* =========================
-   FICHA CARTA (COMO ANTES)
+   FICHA CARTA (COMPLETA + ENLACES)
 ========================= */
 function openCard(card) {
   cardsScreen.classList.add("hidden");
