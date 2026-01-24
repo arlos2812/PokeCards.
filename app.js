@@ -1,3 +1,5 @@
+document.addEventListener("DOMContentLoaded", () => {
+
 const API_KEY = "3d240d93-e6be-4c24-a9fc-c7b4593dd5fc";
 
 /* =========================
@@ -102,8 +104,8 @@ async function loadSets() {
 async function openSet(id, name) {
   currentSetId = id;
   allCards = [];
-
   cardsContainer.innerHTML = "";
+
   setsScreen.classList.add("hidden");
   cardsScreen.classList.remove("hidden");
   cardScreen.classList.add("hidden");
@@ -130,37 +132,41 @@ async function openSet(id, name) {
 
     data.data.forEach(card => {
       allCards.push(card);
-      renderCard(card);
     });
 
     page++;
   }
 
+  renderCards(allCards);
   loader.classList.add("hidden");
 }
 
 /* =========================
-   RENDER CARTA
+   RENDER CARTAS
 ========================= */
-function renderCard(card) {
-  const price =
-    card.cardmarket?.prices?.averageSellPrice != null
-      ? card.cardmarket.prices.averageSellPrice.toFixed(2) + " €"
-      : "—";
+function renderCards(list) {
+  cardsContainer.innerHTML = "";
 
-  const d = document.createElement("div");
-  d.className = "card";
-  d.innerHTML = `
-    <img src="${card.images.small}">
-    <div class="price">${price}</div>
-    <h4>${card.name}</h4>
-  `;
-  d.onclick = () => openCard(card);
-  cardsContainer.appendChild(d);
+  list.forEach(card => {
+    const price =
+      card.cardmarket?.prices?.averageSellPrice != null
+        ? card.cardmarket.prices.averageSellPrice.toFixed(2) + " €"
+        : "—";
+
+    const d = document.createElement("div");
+    d.className = "card";
+    d.innerHTML = `
+      <img src="${card.images.small}">
+      <div class="price">${price}</div>
+      <h4>${card.name}</h4>
+    `;
+    d.onclick = () => openCard(card);
+    cardsContainer.appendChild(d);
+  });
 }
 
 /* =========================
-   FILTROS (AHORA SÍ, SIN TRAMPAS)
+   FILTROS (FUNCIONAN)
 ========================= */
 filterSelect.onchange = () => {
   let list = [...allCards];
@@ -186,17 +192,16 @@ filterSelect.onchange = () => {
       list.sort(
         (a, b) =>
           (a.cardmarket?.prices?.averageSellPrice || 0) -
-          (b.cardmarket?.prices?.averageSellPrice || 0)
+          (a.cardmarket?.prices?.averageSellPrice || 0)
       );
       break;
   }
 
-  cardsContainer.innerHTML = "";
-  list.forEach(renderCard);
+  renderCards(list);
 };
 
 /* =========================
-   FICHA CARTA (COMO TE GUSTA)
+   FICHA CARTA
 ========================= */
 function openCard(card) {
   cardsScreen.classList.add("hidden");
@@ -242,3 +247,5 @@ backToCards.onclick = () => {
 
 /* INIT */
 loadSets();
+
+});
