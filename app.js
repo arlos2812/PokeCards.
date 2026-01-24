@@ -63,10 +63,10 @@ const loader = document.getElementById("global-loading");
 const loadingText = document.getElementById("loading-text");
 
 /* =========================
-   ESTADO
+   ESTADO + CACHE
 ========================= */
+let cacheSets = {}; // 👈 NUEVO (clave del rendimiento)
 let currentSetId = null;
-let allCards = [];
 
 /* =========================
    EXPANSIONES
@@ -86,7 +86,7 @@ async function loadSets() {
     const d = document.createElement("div");
     d.className = "set-card";
     d.innerHTML = `
-      <img src="${set.images.logo}">
+      <img src="${set.images.logo}" loading="lazy">
       <h3>${set.name}</h3>
       <div class="set-date">${set.releaseDate || ""}</div>
     `;
@@ -102,7 +102,6 @@ async function loadSets() {
 ========================= */
 async function openSet(id, name) {
   currentSetId = id;
-  allCards = [];
   cardsContainer.innerHTML = "";
 
   setsScreen.classList.add("hidden");
@@ -111,15 +110,22 @@ async function openSet(id, name) {
 
   setTitle.textContent = name;
 
+  // ✅ SI YA ESTÁ EN CACHÉ → NO PEDIMOS NADA
+  if (cacheSets[id]) {
+    renderCards(cacheSets[id]);
+    return;
+  }
+
   loader.classList.remove("hidden");
   loadingText.textContent = "Cargando cartas…";
 
+  let allCards = [];
   let page = 1;
   let finished = false;
 
   while (!finished) {
     const res = await fetch(
-      `https://api.pokemontcg.io/v2/cards?q=set.id:${id}&page=${page}&pageSize=250`,
+      `https://api.pokemontcg.io/v2/cards?q=set.id:${id}&page=${page}&pageSize=40`,
       { headers: { "X-Api-Key": API_KEY } }
     );
     const data = await res.json();
@@ -129,39 +135,42 @@ async function openSet(id, name) {
       break;
     }
 
-    data.data.forEach(card => {
-      allCards.push(card);
-      renderCard(card);
-    });
-
+    allCards.push(...data.data);
     page++;
   }
+
+  cacheSets[id] = allCards; // 👈 guardamos
+  renderCards(allCards);
 
   loader.classList.add("hidden");
 }
 
 /* =========================
-   RENDER CARTA
+   RENDER CARTAS
 ========================= */
-function renderCard(card) {
-  const price =
-    card.cardmarket?.prices?.averageSellPrice != null
-      ? card.cardmarket.prices.averageSellPrice.toFixed(2) + " €"
-      : "—";
+function renderCards(cards) {
+  cardsContainer.innerHTML = "";
 
-  const d = document.createElement("div");
-  d.className = "card";
-  d.innerHTML = `
-    <img src="${card.images.small}">
-    <div class="price">${price}</div>
-    <h4>${card.name}</h4>
-  `;
-  d.onclick = () => openCard(card);
-  cardsContainer.appendChild(d);
+  cards.forEach(card => {
+    const price =
+      card.cardmarket?.prices?.averageSellPrice != null
+        ? card.cardmarket.prices.averageSellPrice.toFixed(2) + " €"
+        : "—";
+
+    const d = document.createElement("div");
+    d.className = "card";
+    d.innerHTML = `
+      <img src="${card.images.small}" loading="lazy">
+      <div class="price">${price}</div>
+      <h4>${card.name}</h4>
+    `;
+    d.onclick = () => openCard(card);
+    cardsContainer.appendChild(d);
+  });
 }
 
 /* =========================
-   FICHA CARTA
+   FICHA CARTA (SIN CAMBIOS)
 ========================= */
 function openCard(card) {
   cardsScreen.classList.add("hidden");
