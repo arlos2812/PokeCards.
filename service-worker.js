@@ -1,11 +1,13 @@
-const CACHE_NAME = "pokecards-v2";
+const CACHE_NAME = "pokecards-v3";
 
+/* ARCHIVOS DE LA APP (INCLUYE LA FUENTE) */
 const APP_ASSETS = [
   "./",
   "./index.html",
   "./style.css",
   "./app.js",
   "./manifest.json",
+  "./fonts/PokemonSolid.ttf",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
   "./sounds/song1.mp3",
@@ -13,7 +15,9 @@ const APP_ASSETS = [
   "./sounds/song3.mp3"
 ];
 
-/* INSTALAR */
+/* =========================
+   INSTALL
+========================= */
 self.addEventListener("install", event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(APP_ASSETS))
@@ -21,52 +25,68 @@ self.addEventListener("install", event => {
   self.skipWaiting();
 });
 
-/* ACTIVAR */
+/* =========================
+   ACTIVATE
+========================= */
 self.addEventListener("activate", event => {
   event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(
-        keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
+        keys
+          .filter(key => key !== CACHE_NAME)
+          .map(key => caches.delete(key))
       )
     )
   );
   self.clients.claim();
 });
 
-/* FETCH */
+/* =========================
+   FETCH
+========================= */
 self.addEventListener("fetch", event => {
   const url = new URL(event.request.url);
 
-  /* API Pokémon */
+  /* API Pokémon → network first */
   if (url.origin.includes("pokemontcg.io")) {
     event.respondWith(
       fetch(event.request)
-        .then(res => {
-          const clone = res.clone();
-          caches.open(CACHE_NAME).then(c => c.put(event.request, clone));
-          return res;
+        .then(response => {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache =>
+            cache.put(event.request, clone)
+          );
+          return response;
         })
         .catch(() => caches.match(event.request))
     );
     return;
   }
 
-  /* IMÁGENES */
-  if (event.request.destination === "image") {
+  /* FUENTES E IMÁGENES → cache first */
+  if (
+    event.request.destination === "image" ||
+    event.request.destination === "font"
+  ) {
     event.respondWith(
       caches.match(event.request).then(cached =>
-        cached || fetch(event.request).then(res => {
-          const clone = res.clone();
-          caches.open(CACHE_NAME).then(c => c.put(event.request, clone));
-          return res;
+        cached ||
+        fetch(event.request).then(response => {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache =>
+            cache.put(event.request, clone)
+          );
+          return response;
         })
       )
     );
     return;
   }
 
-  /* APP */
+  /* APP → cache first */
   event.respondWith(
-    caches.match(event.request).then(cached => cached || fetch(event.request))
+    caches.match(event.request).then(cached =>
+      cached || fetch(event.request)
+    )
   );
 });
