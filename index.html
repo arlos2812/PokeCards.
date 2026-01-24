@@ -1,15 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PokeCards</title>
 
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#0b0b0b" />
-
-  <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.cdnfonts.com/css/pokemon-solid" rel="stylesheet" />
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.cdnfonts.com/css/pokemon-solid" rel="stylesheet">
 </head>
 
 <body>
@@ -19,10 +17,10 @@
 
   <header id="top-bar">
     <button id="music-toggle">▶️ Música</button>
-    <input id="music-volume" type="range" min="0" max="1" step="0.01" value="0.5" />
+    <input id="music-volume" type="range" min="0" max="1" step="0.01" value="0.5">
   </header>
 
-  <!-- 🔄 Loader -->
+  <!-- Loader -->
   <div id="global-loading" class="hidden">
     <div id="loading-text">Cargando…</div>
   </div>
@@ -35,28 +33,19 @@
 
   <!-- CARTAS -->
   <section id="cards-screen" class="hidden">
-    <header class="cards-header">
-      <button id="back-to-sets">⬅ Volver</button>
-      <h2 id="set-title"></h2>
-    </header>
+    <button id="back-to-sets">⬅ Volver</button>
+    <h2 id="set-title"></h2>
     <div id="cards"></div>
     <button id="load-more" class="load-more hidden">Cargar más</button>
   </section>
 
   <!-- CARTA -->
   <section id="card-screen" class="hidden">
-    <header class="cards-header">
-      <button id="back-to-cards">⬅ Volver</button>
-    </header>
+    <button id="back-to-cards">⬅ Volver</button>
     <div id="card-detail"></div>
   </section>
 
   <script src="app.js"></script>
-  <script>
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("service-worker.js");
-    }
-  </script>
 
 </body>
 </html>
