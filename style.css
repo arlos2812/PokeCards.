@@ -3,12 +3,12 @@
   src: url('fonts/PokemonSolid.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
-  font-display: swap;
+  font-display: block;
 }
 
-/* FORZAR LA FUENTE EN TODO */
+/* FORZAR FUENTE EN TODA LA APP */
 html, body, * {
-  font-family: 'Pokemon', sans-serif !important;
+  font-family: 'Pokemon', Arial, sans-serif !important;
   box-sizing: border-box;
 }
 
@@ -63,43 +63,12 @@ header {
   padding: 12px;
   text-align: center;
   cursor: pointer;
-  transition: transform .2s ease;
-}
-
-.set-card:hover,
-.card:hover {
-  transform: scale(1.05);
 }
 
 .set-card img,
 .card img {
   width: 100%;
   border-radius: 8px;
-}
-
-/* SET DATE */
-.set-date {
-  font-size: 14px;
-  opacity: 0.8;
-  margin-top: 4px;
-}
-
-/* PRICE */
-.price {
-  color: #00ff66;
-  margin: 6px 0;
-}
-
-/* CARD DETAIL */
-#card-detail {
-  text-align: center;
-  padding: 20px;
-}
-
-#card-detail img {
-  width: 100%;
-  max-width: 420px;
-  margin-bottom: 15px;
 }
 
 /* LOAD MORE */
@@ -112,11 +81,6 @@ header {
   color: #2a75bb;
   border: none;
   border-radius: 12px;
-  cursor: pointer;
-}
-
-.load-more:hover {
-  transform: scale(1.05);
 }
 
 /* LOADER */
@@ -125,26 +89,10 @@ header {
   inset: 0;
   background: rgba(0,0,0,0.9);
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 10px;
-  z-index: 9999;
-}
-
-.spinner {
-  width: 48px;
-  height: 48px;
-  border: 6px solid #444;
-  border-top: 6px solid #ffcb05;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
 }
 
 .hidden {
   display: none;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
 }
