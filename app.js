@@ -55,7 +55,6 @@ const cardDetail = document.getElementById("card-detail");
 const setTitle = document.getElementById("set-title");
 const filterSelect = document.getElementById("filter");
 const loadMoreBtn = document.getElementById("load-more");
-
 const loader = document.getElementById("global-loading");
 
 /* =========================
