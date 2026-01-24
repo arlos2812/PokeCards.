@@ -1,4 +1,4 @@
-/* ========= MÚSICA ========= */
+/* ========= 🎵 MÚSICA ========= */
 const music = document.getElementById("music-player");
 const toggle = document.getElementById("music-toggle");
 const volume = document.getElementById("music-volume");
@@ -8,6 +8,7 @@ const songs = [
   "sounds/song2.mp3",
   "sounds/song3.mp3"
 ];
+
 let playing = false;
 let songIndex = 0;
 
@@ -16,7 +17,7 @@ music.volume = volume.value;
 toggle.onclick = () => {
   if (!playing) {
     music.src = songs[songIndex];
-    music.play().catch(()=>{});
+    music.play().catch(() => {});
     toggle.textContent = "⏸️ Música";
     playing = true;
   } else {
@@ -26,7 +27,15 @@ toggle.onclick = () => {
   }
 };
 
-volume.oninput = () => music.volume = volume.value;
+volume.oninput = () => {
+  music.volume = volume.value;
+};
+
+music.onended = () => {
+  songIndex = (songIndex + 1) % songs.length;
+  music.src = songs[songIndex];
+  music.play().catch(() => {});
+};
 
 /* ========= UI ========= */
 const setsScreen = document.getElementById("sets-screen");
@@ -93,13 +102,16 @@ async function openSet(id, name) {
   loader.classList.remove("hidden");
 
   try {
-    const res = await fetch(`https://api.pokemontcg.io/v2/cards?q=set.id:${id}`);
+    const res = await fetch(
+      `https://api.pokemontcg.io/v2/cards?q=set.id:${id}`
+    );
     const data = await res.json();
 
     data.data.forEach(card => {
       allCards.push(card);
       renderCard(card);
     });
+
   } catch (e) {
     console.error(e);
   } finally {
@@ -109,7 +121,7 @@ async function openSet(id, name) {
 
 function renderCard(card) {
   const price =
-    card.cardmarket?.prices?.averageSellPrice
+    card.cardmarket?.prices?.averageSellPrice != null
       ? card.cardmarket.prices.averageSellPrice.toFixed(2) + " €"
       : "—";
 
@@ -128,14 +140,24 @@ function renderCard(card) {
 filter.onchange = () => {
   let list = [...allCards];
 
-  if (filter.value === "az") list.sort((a,b)=>a.name.localeCompare(b.name));
-  if (filter.value === "za") list.sort((a,b)=>b.name.localeCompare(a.name));
+  if (filter.value === "az")
+    list.sort((a, b) => a.name.localeCompare(b.name));
+  if (filter.value === "za")
+    list.sort((a, b) => b.name.localeCompare(a.name));
   if (filter.value === "price-desc")
-    list.sort((a,b)=>(b.cardmarket?.prices?.averageSellPrice||0)-(a.cardmarket?.prices?.averageSellPrice||0));
+    list.sort(
+      (a, b) =>
+        (b.cardmarket?.prices?.averageSellPrice || 0) -
+        (a.cardmarket?.prices?.averageSellPrice || 0)
+    );
   if (filter.value === "price-asc")
-    list.sort((a,b)=>(a.cardmarket?.prices?.averageSellPrice||0)-(b.cardmarket?.prices?.averageSellPrice||0));
+    list.sort(
+      (a, b) =>
+        (a.cardmarket?.prices?.averageSellPrice || 0) -
+        (b.cardmarket?.prices?.averageSellPrice || 0)
+    );
   if (filter.value === "num")
-    list.sort((a,b)=>parseInt(a.number)-parseInt(b.number));
+    list.sort((a, b) => parseInt(a.number) - parseInt(b.number));
 
   cardsDiv.innerHTML = "";
   list.forEach(renderCard);
@@ -152,14 +174,20 @@ function openCard(card) {
     <h2>${card.name}</h2>
     <p>Número: ${card.number}</p>
     <p class="price">
-      ${card.cardmarket?.prices?.averageSellPrice
-        ? card.cardmarket.prices.averageSellPrice + " €"
-        : "—"}
+      ${
+        card.cardmarket?.prices?.averageSellPrice != null
+          ? card.cardmarket.prices.averageSellPrice + " €"
+          : "—"
+      }
     </p>
-    <a href="https://www.pricecharting.com/search-products?q=${encodeURIComponent(card.name)}" target="_blank">
+    <a href="https://www.pricecharting.com/search-products?q=${encodeURIComponent(
+      card.name
+    )}" target="_blank">
       PriceCharting
     </a><br>
-    <a href="${card.cardmarket?.url || "https://www.cardmarket.com"}" target="_blank">
+    <a href="${
+      card.cardmarket?.url || "https://www.cardmarket.com"
+    }" target="_blank">
       CardMarket
     </a>
   `;
@@ -178,4 +206,3 @@ document.getElementById("back-to-sets").onclick = () => {
 
 /* INIT */
 loadSets();
-
