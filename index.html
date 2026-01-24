@@ -15,6 +15,7 @@
 
 <body>
 
+<!-- HEADER -->
 <header>
   <h1 class="logo">PokeCards</h1>
 </header>
@@ -32,26 +33,37 @@
   >
 </div>
 
-<!-- LOADER -->
+<!-- ESCANEAR CARTA -->
+<div class="scan-bar">
+  <button id="scan-btn">📷 Escanear carta</button>
+  <input
+    id="camera-input"
+    type="file"
+    accept="image/*"
+    capture="environment"
+    style="display:none"
+  >
+</div>
+
+<!-- LOADER GLOBAL -->
 <div id="global-loading" class="loading hidden">
   <div class="spinner"></div>
   <div id="loading-text">Cargando…</div>
 </div>
 
-<!-- EXPANSIONES -->
+<!-- PANTALLA EXPANSIONES -->
 <section id="sets-screen">
   <h2 class="section-title">EXPANSIONES</h2>
   <div id="sets" class="grid"></div>
 </section>
 
-<!-- CARTAS -->
+<!-- PANTALLA CARTAS -->
 <section id="cards-screen" class="hidden">
   <button id="back-to-sets">⬅ Volver</button>
 
   <select id="filter">
     <option value="az">A–Z</option>
     <option value="za">Z–A</option>
-    <option value="set">📦 Expansión</option>
     <option value="price-desc">💰 Precio ↓</option>
     <option value="price-asc">💰 Precio ↑</option>
   </select>
@@ -60,14 +72,17 @@
   <div id="cards" class="grid"></div>
 </section>
 
-<!-- FICHA CARTA -->
+<!-- PANTALLA CARTA -->
 <section id="card-screen" class="hidden">
   <button id="back-to-cards">⬅ Volver</button>
   <div id="card-detail"></div>
 </section>
 
+<!-- AUDIO -->
 <audio id="music-player"></audio>
 
+<!-- APP -->
 <script src="app.js"></script>
+
 </body>
 </html>
