@@ -1,73 +1,184 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>PokeCards</title>
 
   <!-- PWA -->
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0b0b0b">
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0b0b0b" />
 
-  <!-- ESTILOS -->
-  <link rel="stylesheet" href="style.css">
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Fuente Pokémon -->
+  <link
+    href="https://fonts.cdnfonts.com/css/pokemon-solid"
+    rel="stylesheet"
+  />
 </head>
 
 <body>
 
-<header>
-  <h1 class="logo">PokeCards</h1>
-</header>
+  <!-- 🎵 Música -->
+  <audio id="music-player"></audio>
 
-<!-- BARRA DE MÚSICA -->
-<div class="music-bar">
-  <button id="music-toggle">▶️ Música</button>
-  <input
-    id="music-volume"
-    type="range"
-    min="0"
-    max="1"
-    step="0.01"
-    value="0.4"
-  >
-</div>
+  <div id="music-controls">
+    <button id="music-toggle">▶️ Música</button>
+    <input
+      type="range"
+      id="music-volume"
+      min="0"
+      max="1"
+      step="0.01"
+      value="0.5"
+    />
+  </div>
 
-<!-- LOADER -->
-<div id="global-loading" class="loading hidden">
-  <div class="spinner"></div>
-  <div id="loading-text">Cargando…</div>
-</div>
+  <!-- 🔄 LOADER GLOBAL -->
+  <div id="global-loading" class="hidden">
+    <div id="loading-text">Cargando…</div>
+  </div>
 
-<!-- EXPANSIONES -->
-<section id="sets-screen">
-  <h2 class="section-title">EXPANSIONES</h2>
-  <div id="sets" class="grid"></div>
-</section>
+  <!-- ======================
+       PANTALLA EXPANSIONES
+  ======================= -->
+  <section id="sets-screen">
+    <h1>PokeCards</h1>
+    <div id="sets"></div>
+  </section>
 
-<!-- CARTAS -->
-<section id="cards-screen" class="hidden">
-  <button id="back-to-sets">⬅ Volver</button>
+  <!-- ======================
+       PANTALLA CARTAS
+  ======================= -->
+  <section id="cards-screen" class="hidden">
+    <header class="cards-header">
+      <button id="back-to-sets">⬅ Volver</button>
+      <h2 id="set-title"></h2>
+    </header>
 
-  <select id="filter">
-    <option value="az">A–Z</option>
-    <option value="za">Z–A</option>
-    <option value="set">📦 Expansión</option>
-    <option value="price-desc">💰 Precio ↓</option>
-    <option value="price-asc">💰 Precio ↑</option>
-  </select>
+    <div id="cards"></div>
 
-  <h2 id="set-title" class="section-title"></h2>
-  <div id="cards" class="grid"></div>
-</section>
+    <!-- 🔘 BOTÓN CARGAR MÁS -->
+    <button id="load-more" class="load-more hidden">
+      Cargar más
+    </button>
+  </section>
 
-<!-- FICHA CARTA -->
-<section id="card-screen" class="hidden">
-  <button id="back-to-cards">⬅ Volver</button>
-  <div id="card-detail"></div>
-</section>
+  <!-- ======================
+       PANTALLA CARTA
+  ======================= -->
+  <section id="card-screen" class="hidden">
+    <header class="cards-header">
+      <button id="back-to-cards">⬅ Volver</button>
+    </header>
 
-<audio id="music-player"></audio>
+    <div id="card-detail"></div>
+  </section>
 
-<script src="app.js"></script>
+  <!-- JS -->
+  <script src="app.js"></script>
+
+  <!-- Registrar Service Worker -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("service-worker.js");
+    }
+  </script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>PokeCards</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0b0b0b" />
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Fuente Pokémon -->
+  <link
+    href="https://fonts.cdnfonts.com/css/pokemon-solid"
+    rel="stylesheet"
+  />
+</head>
+
+<body>
+
+  <!-- 🎵 Música -->
+  <audio id="music-player"></audio>
+
+  <div id="music-controls">
+    <button id="music-toggle">▶️ Música</button>
+    <input
+      type="range"
+      id="music-volume"
+      min="0"
+      max="1"
+      step="0.01"
+      value="0.5"
+    />
+  </div>
+
+  <!-- 🔄 LOADER GLOBAL -->
+  <div id="global-loading" class="hidden">
+    <div id="loading-text">Cargando…</div>
+  </div>
+
+  <!-- ======================
+       PANTALLA EXPANSIONES
+  ======================= -->
+  <section id="sets-screen">
+    <h1>PokeCards</h1>
+    <div id="sets"></div>
+  </section>
+
+  <!-- ======================
+       PANTALLA CARTAS
+  ======================= -->
+  <section id="cards-screen" class="hidden">
+    <header class="cards-header">
+      <button id="back-to-sets">⬅ Volver</button>
+      <h2 id="set-title"></h2>
+    </header>
+
+    <div id="cards"></div>
+
+    <!-- 🔘 BOTÓN CARGAR MÁS -->
+    <button id="load-more" class="load-more hidden">
+      Cargar más
+    </button>
+  </section>
+
+  <!-- ======================
+       PANTALLA CARTA
+  ======================= -->
+  <section id="card-screen" class="hidden">
+    <header class="cards-header">
+      <button id="back-to-cards">⬅ Volver</button>
+    </header>
+
+    <div id="card-detail"></div>
+  </section>
+
+  <!-- JS -->
+  <script src="app.js"></script>
+
+  <!-- Registrar Service Worker -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("service-worker.js");
+    }
+  </script>
+
 </body>
 </html>
