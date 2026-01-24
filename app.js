@@ -179,7 +179,6 @@ async function loadNextPage(auto = false) {
 ========================= */
 filterSelect.onchange = () => {
   filtering = true;
-
   let list = [...allCards];
 
   switch (filterSelect.value) {
@@ -229,7 +228,7 @@ filterSelect.onchange = () => {
 };
 
 /* =========================
-   FICHA CARTA (ENLACES RESTAURADOS)
+   FICHA CARTA (INFO + ENLACES RESTAURADOS)
 ========================= */
 function openCard(card) {
   cardsScreen.classList.add("hidden");
