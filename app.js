@@ -16,14 +16,11 @@ const volume = document.getElementById("music-volume");
 let songIndex = 0;
 let playing = false;
 
-music.muted = true;
-music.preload = "auto";
 music.volume = volume.value;
 
 musicToggle.onclick = async () => {
   if (!playing) {
     music.src = playlist[songIndex];
-    music.muted = false;
     await music.play();
     playing = true;
     musicToggle.textContent = "⏸️ Música";
@@ -140,7 +137,7 @@ async function loadNextPage(auto = false) {
   );
   const data = await res.json();
 
-  if (!data.data.length) {
+  if (!data.data || data.data.length === 0) {
     finished = true;
     loader.classList.add("hidden");
     return;
@@ -208,7 +205,6 @@ filterSelect.onchange = () => {
   }
 
   cardsContainer.innerHTML = "";
-
   list.forEach(card => {
     const price =
       card.cardmarket?.prices?.averageSellPrice != null
@@ -228,7 +224,7 @@ filterSelect.onchange = () => {
 };
 
 /* =========================
-   FICHA CARTA (INFO + ENLACES RESTAURADOS)
+   FICHA CARTA (ORIGINAL, COMPLETA)
 ========================= */
 function openCard(card) {
   cardsScreen.classList.add("hidden");
