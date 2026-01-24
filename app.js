@@ -40,7 +40,7 @@ if (filterSelect) {
 }
 
 /* =========================
-   EXPANSIONES
+   EXPANSIONES (CON FECHA)
 ========================= */
 async function loadSets() {
   try {
@@ -158,13 +158,23 @@ filterSelect.onchange = () => {
   let list = [...allCards];
 
   switch (filterSelect.value) {
-    case "az": list.sort((a,b)=>a.name.localeCompare(b.name)); break;
-    case "za": list.sort((a,b)=>b.name.localeCompare(a.name)); break;
+    case "az":
+      list.sort((a,b)=>a.name.localeCompare(b.name));
+      break;
+    case "za":
+      list.sort((a,b)=>b.name.localeCompare(a.name));
+      break;
     case "price-desc":
-      list.sort((a,b)=>(b.cardmarket?.prices?.averageSellPrice||0)-(a.cardmarket?.prices?.averageSellPrice||0));
+      list.sort(
+        (a,b)=>(b.cardmarket?.prices?.averageSellPrice||0) -
+               (a.cardmarket?.prices?.averageSellPrice||0)
+      );
       break;
     case "price-asc":
-      list.sort((a,b)=>(a.cardmarket?.prices?.averageSellPrice||0)-(b.cardmarket?.prices?.averageSellPrice||0));
+      list.sort(
+        (a,b)=>(a.cardmarket?.prices?.averageSellPrice||0) -
+               (b.cardmarket?.prices?.averageSellPrice||0)
+      );
       break;
     case "number-asc":
       list.sort((a,b)=>parseInt(a.number)-parseInt(b.number));
@@ -176,7 +186,7 @@ filterSelect.onchange = () => {
 };
 
 /* =========================
-   CARTA ABIERTA
+   CARTA ABIERTA (VOLVER ARRIBA)
 ========================= */
 function openCard(card) {
   cardsScreen.classList.add("hidden");
@@ -187,24 +197,42 @@ function openCard(card) {
       ? card.cardmarket.prices.averageSellPrice.toFixed(2) + " €"
       : "—";
 
+  const priceChartingUrl =
+    "https://www.pricecharting.com/search-products?q=" +
+    encodeURIComponent(card.name + " " + card.set.name);
+
+  const cardMarketUrl =
+    card.cardmarket?.url || "https://www.cardmarket.com";
+
   cardDetail.innerHTML = `
+    <button id="back-to-cards-top" class="load-more">
+      ⬅ Volver
+    </button>
+
     <img src="${card.images.large}">
     <h2>${card.name}</h2>
+
     <p><strong>Expansión:</strong> ${card.set.name}</p>
     <p><strong>Número:</strong> ${card.number}</p>
     <p><strong>Rareza:</strong> ${card.rarity || "—"}</p>
-    <p><strong>Precio medio:</strong> <span class="price">${price}</span></p>
+    <p><strong>Precio medio:</strong>
+      <span class="price">${price}</span>
+    </p>
 
-    <a class="load-more" target="_blank"
-      href="https://www.pricecharting.com/search-products?q=${encodeURIComponent(card.name + ' ' + card.set.name)}">
-      🔗 PriceCharting
-    </a>
-
-    <a class="load-more" target="_blank"
-      href="${card.cardmarket?.url || 'https://www.cardmarket.com'}">
-      🔗 CardMarket
-    </a>
+    <div style="margin-top:16px;">
+      <a href="${priceChartingUrl}" target="_blank" class="load-more">
+        🔗 PriceCharting
+      </a>
+      <a href="${cardMarketUrl}" target="_blank" class="load-more">
+        🔗 CardMarket
+      </a>
+    </div>
   `;
+
+  document.getElementById("back-to-cards-top").onclick = () => {
+    cardScreen.classList.add("hidden");
+    cardsScreen.classList.remove("hidden");
+  };
 }
 
 /* =========================
@@ -215,11 +243,6 @@ loadMoreBtn.onclick = loadNextPage;
 document.getElementById("back-to-sets").onclick = () => {
   cardsScreen.classList.add("hidden");
   setsScreen.classList.remove("hidden");
-};
-
-document.getElementById("back-to-cards").onclick = () => {
-  cardScreen.classList.add("hidden");
-  cardsScreen.classList.remove("hidden");
 };
 
 /* INIT */
