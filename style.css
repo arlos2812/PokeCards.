@@ -49,9 +49,8 @@ header {
   padding: 20px;
 }
 
-/* CARDS */
-.set-card,
-.card {
+/* SETS */
+.set-card {
   background: #1c1c1c;
   border-radius: 14px;
   padding: 12px;
@@ -60,12 +59,38 @@ header {
   transition: transform .2s ease;
 }
 
-.set-card:hover,
-.card:hover {
+.set-card:hover {
   transform: scale(1.05);
 }
 
-.set-card img,
+.set-card img {
+  width: 100%;
+  border-radius: 8px;
+}
+
+.set-card h3 {
+  margin: 10px 0 4px;
+  font-size: 18px;
+}
+
+/* 📅 FECHA DE EXPANSIÓN (CLAVE) */
+.set-date {
+  display: block;
+  font-size: 14px;
+  color: #cccccc;
+  opacity: 0.9;
+  margin-top: 4px;
+}
+
+/* CARDS */
+.card {
+  background: #1c1c1c;
+  border-radius: 14px;
+  padding: 12px;
+  text-align: center;
+  cursor: pointer;
+}
+
 .card img {
   width: 100%;
   border-radius: 8px;
@@ -74,7 +99,6 @@ header {
 /* 💚 PRECIO */
 .price {
   color: #00ff66;
-  font-size: 16px;
   margin: 6px 0;
 }
 
@@ -90,7 +114,7 @@ header {
   font-size: 18px;
 }
 
-/* 📌 CARTA ABIERTA CENTRADA */
+/* CARTA ABIERTA CENTRADA */
 #card-screen {
   display: flex;
   justify-content: center;
@@ -121,17 +145,6 @@ header {
   z-index: 999;
 }
 
-.spinner {
-  width: 48px;
-  height: 48px;
-  border: 6px solid #444;
-  border-top: 6px solid #ffcb05;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-.hidden { display: none; }
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
+.hidden {
+  display: none;
 }
