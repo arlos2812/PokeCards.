@@ -3,12 +3,7 @@ const API_KEY = "3d240d93-e6be-4c24-a9fc-c7b4593dd5fc";
 /* =========================
    🎵 MÚSICA
 ========================= */
-const playlist = [
-  "sounds/song1.mp3",
-  "sounds/song2.mp3",
-  "sounds/song3.mp3"
-];
-
+const playlist = ["sounds/song1.mp3","sounds/song2.mp3","sounds/song3.mp3"];
 const music = document.getElementById("music-player");
 const musicToggle = document.getElementById("music-toggle");
 const volume = document.getElementById("music-volume");
@@ -18,11 +13,10 @@ let playing = false;
 
 if (music && musicToggle && volume) {
   music.volume = volume.value;
-
   musicToggle.onclick = () => {
     if (!playing) {
       music.src = playlist[songIndex];
-      music.play().catch(() => {});
+      music.play().catch(()=>{});
       playing = true;
       musicToggle.textContent = "⏸️ Música";
     } else {
@@ -31,13 +25,11 @@ if (music && musicToggle && volume) {
       musicToggle.textContent = "▶️ Música";
     }
   };
-
-  volume.oninput = () => (music.volume = volume.value);
-
+  volume.oninput = () => music.volume = volume.value;
   music.onended = () => {
     songIndex = (songIndex + 1) % playlist.length;
     music.src = playlist[songIndex];
-    music.play().catch(() => {});
+    music.play().catch(()=>{});
   };
 }
 
@@ -58,7 +50,7 @@ const loadMoreBtn = document.getElementById("load-more");
 const loader = document.getElementById("global-loading");
 
 /* =========================
-   FORZAR FILTROS
+   FILTROS
 ========================= */
 filterSelect.innerHTML = `
   <option value="az">A–Z</option>
@@ -89,7 +81,6 @@ async function loadSets() {
   const data = await res.json();
 
   setsContainer.innerHTML = "";
-
   data.data.forEach(set => {
     const d = document.createElement("div");
     d.className = "set-card";
@@ -145,7 +136,6 @@ async function loadNextPage() {
 
   data.data.forEach(addCard);
   page++;
-
   loader.classList.add("hidden");
 }
 
@@ -208,7 +198,7 @@ filterSelect.onchange = () => {
 };
 
 /* =========================
-   CARTA ABIERTA (INFO COMPLETA)
+   CARTA ABIERTA (INFO + BOTONES)
 ========================= */
 function openCard(card) {
   cardsScreen.classList.add("hidden");
@@ -219,6 +209,13 @@ function openCard(card) {
       ? card.cardmarket.prices.averageSellPrice.toFixed(2) + " €"
       : "—";
 
+  const priceChartingUrl =
+    "https://www.pricecharting.com/search-products?q=" +
+    encodeURIComponent(`${card.name} ${card.set.name}`);
+
+  const cardMarketUrl =
+    card.cardmarket?.url || "https://www.cardmarket.com";
+
   cardDetail.innerHTML = `
     <img src="${card.images.large}">
     <h2>${card.name}</h2>
@@ -226,15 +223,17 @@ function openCard(card) {
     <p><strong>Expansión:</strong> ${card.set.name}</p>
     <p><strong>Número:</strong> ${card.number}</p>
     <p><strong>Rareza:</strong> ${card.rarity || "—"}</p>
+    <p><strong>Artista:</strong> ${card.artist || "—"}</p>
     <p><strong>Precio medio:</strong> <span class="price">${price}</span></p>
 
-    <p>
-      <a href="https://www.pricecharting.com/search-products?q=${encodeURIComponent(card.name)}"
-         target="_blank">PriceCharting</a>
-      |
-      <a href="${card.cardmarket?.url || "https://www.cardmarket.com"}"
-         target="_blank">CardMarket</a>
-    </p>
+    <div style="margin-top:16px;">
+      <a href="${priceChartingUrl}" target="_blank" class="load-more">
+        🔗 PriceCharting
+      </a>
+      <a href="${cardMarketUrl}" target="_blank" class="load-more">
+        🔗 CardMarket
+      </a>
+    </div>
   `;
 }
 
