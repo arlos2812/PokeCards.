@@ -12,30 +12,30 @@ const songs = [
 let playing = false;
 let songIndex = 0;
 
-music.volume = volume.value;
+if (music && toggle && volume) {
+  music.volume = volume.value;
 
-toggle.onclick = () => {
-  if (!playing) {
+  toggle.onclick = () => {
+    if (!playing) {
+      music.src = songs[songIndex];
+      music.play().catch(() => {});
+      toggle.textContent = "⏸️ Música";
+      playing = true;
+    } else {
+      music.pause();
+      toggle.textContent = "▶️ Música";
+      playing = false;
+    }
+  };
+
+  volume.oninput = () => (music.volume = volume.value);
+
+  music.onended = () => {
+    songIndex = (songIndex + 1) % songs.length;
     music.src = songs[songIndex];
     music.play().catch(() => {});
-    toggle.textContent = "⏸️ Música";
-    playing = true;
-  } else {
-    music.pause();
-    toggle.textContent = "▶️ Música";
-    playing = false;
-  }
-};
-
-volume.oninput = () => {
-  music.volume = volume.value;
-};
-
-music.onended = () => {
-  songIndex = (songIndex + 1) % songs.length;
-  music.src = songs[songIndex];
-  music.play().catch(() => {});
-};
+  };
+}
 
 /* ========= UI ========= */
 const setsScreen = document.getElementById("sets-screen");
@@ -53,19 +53,22 @@ const loader = document.getElementById("global-loading");
 let allCards = [];
 
 /* ========= FILTROS ========= */
-filter.innerHTML = `
-  <option value="az">A–Z</option>
-  <option value="za">Z–A</option>
-  <option value="price-desc">Precio ↓</option>
-  <option value="price-asc">Precio ↑</option>
-  <option value="num">Número</option>
-`;
+if (filter) {
+  filter.innerHTML = `
+    <option value="az">A–Z</option>
+    <option value="za">Z–A</option>
+    <option value="price-desc">Precio ↓</option>
+    <option value="price-asc">Precio ↑</option>
+    <option value="num">Número</option>
+  `;
+}
 
-/* ========= EXPANSIONES ========= */
+/* ========= EXPANSIONES (LOADER INFALIBLE) ========= */
 async function loadSets() {
-  try {
-    loader.classList.remove("hidden");
+  if (!loader) return;
+  loader.classList.remove("hidden");
 
+  try {
     const res = await fetch("https://api.pokemontcg.io/v2/sets");
     const data = await res.json();
 
@@ -81,13 +84,13 @@ async function loadSets() {
       d.onclick = () => openSet(set.id, set.name);
       setsDiv.appendChild(d);
     });
-
   } catch (e) {
-    console.error(e);
+    console.error("Error cargando expansiones", e);
     setsDiv.innerHTML = "<p>Error cargando expansiones</p>";
-  } finally {
-    loader.classList.add("hidden");
   }
+
+  // 🔥 SIEMPRE se oculta
+  loader.classList.add("hidden");
 }
 
 /* ========= CARTAS ========= */
@@ -102,21 +105,18 @@ async function openSet(id, name) {
   loader.classList.remove("hidden");
 
   try {
-    const res = await fetch(
-      `https://api.pokemontcg.io/v2/cards?q=set.id:${id}`
-    );
+    const res = await fetch(`https://api.pokemontcg.io/v2/cards?q=set.id:${id}`);
     const data = await res.json();
 
     data.data.forEach(card => {
       allCards.push(card);
       renderCard(card);
     });
-
   } catch (e) {
     console.error(e);
-  } finally {
-    loader.classList.add("hidden");
   }
+
+  loader.classList.add("hidden");
 }
 
 function renderCard(card) {
@@ -137,31 +137,23 @@ function renderCard(card) {
 }
 
 /* ========= FILTRAR ========= */
-filter.onchange = () => {
-  let list = [...allCards];
+if (filter) {
+  filter.onchange = () => {
+    let list = [...allCards];
 
-  if (filter.value === "az")
-    list.sort((a, b) => a.name.localeCompare(b.name));
-  if (filter.value === "za")
-    list.sort((a, b) => b.name.localeCompare(a.name));
-  if (filter.value === "price-desc")
-    list.sort(
-      (a, b) =>
-        (b.cardmarket?.prices?.averageSellPrice || 0) -
-        (a.cardmarket?.prices?.averageSellPrice || 0)
-    );
-  if (filter.value === "price-asc")
-    list.sort(
-      (a, b) =>
-        (a.cardmarket?.prices?.averageSellPrice || 0) -
-        (b.cardmarket?.prices?.averageSellPrice || 0)
-    );
-  if (filter.value === "num")
-    list.sort((a, b) => parseInt(a.number) - parseInt(b.number));
+    if (filter.value === "az") list.sort((a,b)=>a.name.localeCompare(b.name));
+    if (filter.value === "za") list.sort((a,b)=>b.name.localeCompare(a.name));
+    if (filter.value === "price-desc")
+      list.sort((a,b)=>(b.cardmarket?.prices?.averageSellPrice||0)-(a.cardmarket?.prices?.averageSellPrice||0));
+    if (filter.value === "price-asc")
+      list.sort((a,b)=>(a.cardmarket?.prices?.averageSellPrice||0)-(b.cardmarket?.prices?.averageSellPrice||0));
+    if (filter.value === "num")
+      list.sort((a,b)=>parseInt(a.number)-parseInt(b.number));
 
-  cardsDiv.innerHTML = "";
-  list.forEach(renderCard);
-};
+    cardsDiv.innerHTML = "";
+    list.forEach(renderCard);
+  };
+}
 
 /* ========= CARTA ABIERTA ========= */
 function openCard(card) {
@@ -173,21 +165,15 @@ function openCard(card) {
     <img src="${card.images.large}">
     <h2>${card.name}</h2>
     <p>Número: ${card.number}</p>
-    <p class="price">
-      ${
-        card.cardmarket?.prices?.averageSellPrice != null
-          ? card.cardmarket.prices.averageSellPrice + " €"
-          : "—"
-      }
-    </p>
-    <a href="https://www.pricecharting.com/search-products?q=${encodeURIComponent(
-      card.name
-    )}" target="_blank">
+    <p class="price">${
+      card.cardmarket?.prices?.averageSellPrice != null
+        ? card.cardmarket.prices.averageSellPrice + " €"
+        : "—"
+    }</p>
+    <a href="https://www.pricecharting.com/search-products?q=${encodeURIComponent(card.name)}" target="_blank">
       PriceCharting
     </a><br>
-    <a href="${
-      card.cardmarket?.url || "https://www.cardmarket.com"
-    }" target="_blank">
+    <a href="${card.cardmarket?.url || "https://www.cardmarket.com"}" target="_blank">
       CardMarket
     </a>
   `;
@@ -199,10 +185,13 @@ function openCard(card) {
 }
 
 /* ========= VOLVER ========= */
-document.getElementById("back-to-sets").onclick = () => {
-  cardsScreen.classList.add("hidden");
-  setsScreen.classList.remove("hidden");
-};
+const backToSets = document.getElementById("back-to-sets");
+if (backToSets) {
+  backToSets.onclick = () => {
+    cardsScreen.classList.add("hidden");
+    setsScreen.classList.remove("hidden");
+  };
+}
 
 /* INIT */
 loadSets();
