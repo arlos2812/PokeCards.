@@ -107,7 +107,7 @@ async function loadSets() {
 }
 
 /* =========================
-   ABRIR SET
+   ABRIR EXPANSIÓN
 ========================= */
 function openSet(id, name) {
   currentSetId = id;
@@ -209,7 +209,7 @@ filterSelect.onchange = () => {
 };
 
 /* =========================
-   CARTA ABIERTA (CON ENLACES)
+   CARTA ABIERTA (INFO COMPLETA)
 ========================= */
 function openCard(card) {
   cardsScreen.classList.add("hidden");
