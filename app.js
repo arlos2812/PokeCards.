@@ -125,7 +125,7 @@ function openSet(id, name) {
    CARGA CARTAS
 ========================= */
 async function loadNextPage(auto = false) {
-  if (loading || finished) return;
+  if (loading || finished || filtering) return;
 
   loading = true;
   loader.classList.remove("hidden");
@@ -145,21 +145,7 @@ async function loadNextPage(auto = false) {
 
   data.data.forEach(card => {
     allCards.push(card);
-
-    const price =
-      card.cardmarket?.prices?.averageSellPrice != null
-        ? card.cardmarket.prices.averageSellPrice.toFixed(2) + " €"
-        : "—";
-
-    const d = document.createElement("div");
-    d.className = "card";
-    d.innerHTML = `
-      <img src="${card.images.small}">
-      <div class="price">${price}</div>
-      <h4>${card.name}</h4>
-    `;
-    d.onclick = () => openCard(card);
-    cardsContainer.appendChild(d);
+    renderCard(card);
   });
 
   page++;
@@ -172,7 +158,27 @@ async function loadNextPage(auto = false) {
 }
 
 /* =========================
-   FILTROS (FUNCIONANDO)
+   RENDER CARTA (UNA SOLA FUNCIÓN)
+========================= */
+function renderCard(card) {
+  const price =
+    card.cardmarket?.prices?.averageSellPrice != null
+      ? card.cardmarket.prices.averageSellPrice.toFixed(2) + " €"
+      : "—";
+
+  const d = document.createElement("div");
+  d.className = "card";
+  d.innerHTML = `
+    <img src="${card.images.small}">
+    <div class="price">${price}</div>
+    <h4>${card.name}</h4>
+  `;
+  d.onclick = () => openCard(card);
+  cardsContainer.appendChild(d);
+}
+
+/* =========================
+   FILTROS (AHORA SÍ)
 ========================= */
 filterSelect.onchange = () => {
   filtering = true;
@@ -206,27 +212,11 @@ filterSelect.onchange = () => {
   }
 
   cardsContainer.innerHTML = "";
-
-  list.forEach(card => {
-    const price =
-      card.cardmarket?.prices?.averageSellPrice != null
-        ? card.cardmarket.prices.averageSellPrice.toFixed(2) + " €"
-        : "—";
-
-    const d = document.createElement("div");
-    d.className = "card";
-    d.innerHTML = `
-      <img src="${card.images.small}">
-      <div class="price">${price}</div>
-      <h4>${card.name}</h4>
-    `;
-    d.onclick = () => openCard(card);
-    cardsContainer.appendChild(d);
-  });
+  list.forEach(renderCard);
 };
 
 /* =========================
-   FICHA CARTA (COMPLETA + ENLACES)
+   FICHA CARTA (COMO ANTES)
 ========================= */
 function openCard(card) {
   cardsScreen.classList.add("hidden");
