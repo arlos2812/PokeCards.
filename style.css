@@ -71,11 +71,6 @@ header {
   border-radius: 8px;
 }
 
-.set-date {
-  font-size: 14px;
-  opacity: .8;
-}
-
 /* 💚 PRECIO */
 .price {
   color: #00ff66;
@@ -95,15 +90,24 @@ header {
   font-size: 18px;
 }
 
-/* CARD DETAIL */
+/* 📌 CARTA ABIERTA CENTRADA */
+#card-screen {
+  display: flex;
+  justify-content: center;
+}
+
 #card-detail {
   text-align: center;
   padding: 20px;
+  max-width: 520px;
+  width: 100%;
 }
 
 #card-detail img {
-  max-width: 420px;
   width: 100%;
+  max-width: 420px;
+  margin: 0 auto 15px;
+  display: block;
 }
 
 /* LOADER */
