@@ -45,34 +45,37 @@
   >
 </div>
 
-<!-- LOADER GLOBAL -->
+<!-- LOADER -->
 <div id="global-loading" class="loading hidden">
   <div class="spinner"></div>
   <div id="loading-text">Cargando…</div>
 </div>
 
-<!-- PANTALLA EXPANSIONES -->
+<!-- EXPANSIONES -->
 <section id="sets-screen">
   <h2 class="section-title">EXPANSIONES</h2>
   <div id="sets" class="grid"></div>
 </section>
 
-<!-- PANTALLA CARTAS -->
+<!-- CARTAS -->
 <section id="cards-screen" class="hidden">
   <button id="back-to-sets">⬅ Volver</button>
 
   <select id="filter">
     <option value="az">A–Z</option>
     <option value="za">Z–A</option>
-    <option value="price-desc">💰 Precio ↓</option>
-    <option value="price-asc">💰 Precio ↑</option>
   </select>
 
   <h2 id="set-title" class="section-title"></h2>
+
   <div id="cards" class="grid"></div>
+
+  <button id="load-more" class="load-more hidden">
+    ⬇ Cargar más cartas
+  </button>
 </section>
 
-<!-- PANTALLA CARTA -->
+<!-- CARTA -->
 <section id="card-screen" class="hidden">
   <button id="back-to-cards">⬅ Volver</button>
   <div id="card-detail"></div>
