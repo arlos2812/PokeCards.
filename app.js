@@ -55,7 +55,6 @@ const cardDetail = document.getElementById("card-detail");
 const setTitle = document.getElementById("set-title");
 const backToSets = document.getElementById("back-to-sets");
 const backToCards = document.getElementById("back-to-cards");
-const filterSelect = document.getElementById("filter");
 
 /* =========================
    LOADER
@@ -99,7 +98,7 @@ async function loadSets() {
 }
 
 /* =========================
-   ABRIR EXPANSIÓN (CARGA TODO)
+   ABRIR EXPANSIÓN
 ========================= */
 async function openSet(id, name) {
   currentSetId = id;
@@ -132,73 +131,34 @@ async function openSet(id, name) {
 
     data.data.forEach(card => {
       allCards.push(card);
+      renderCard(card);
     });
 
     page++;
   }
 
-  renderCards(allCards);
   loader.classList.add("hidden");
 }
 
 /* =========================
-   RENDER CARTAS
+   RENDER CARTA
 ========================= */
-function renderCards(list) {
-  cardsContainer.innerHTML = "";
+function renderCard(card) {
+  const price =
+    card.cardmarket?.prices?.averageSellPrice != null
+      ? card.cardmarket.prices.averageSellPrice.toFixed(2) + " €"
+      : "—";
 
-  list.forEach(card => {
-    const price =
-      card.cardmarket?.prices?.averageSellPrice != null
-        ? card.cardmarket.prices.averageSellPrice.toFixed(2) + " €"
-        : "—";
-
-    const d = document.createElement("div");
-    d.className = "card";
-    d.innerHTML = `
-      <img src="${card.images.small}">
-      <div class="price">${price}</div>
-      <h4>${card.name}</h4>
-    `;
-    d.onclick = () => openCard(card);
-    cardsContainer.appendChild(d);
-  });
+  const d = document.createElement("div");
+  d.className = "card";
+  d.innerHTML = `
+    <img src="${card.images.small}">
+    <div class="price">${price}</div>
+    <h4>${card.name}</h4>
+  `;
+  d.onclick = () => openCard(card);
+  cardsContainer.appendChild(d);
 }
-
-/* =========================
-   FILTROS (FUNCIONAN)
-========================= */
-filterSelect.onchange = () => {
-  let list = [...allCards];
-
-  switch (filterSelect.value) {
-    case "az":
-      list.sort((a, b) => a.name.localeCompare(b.name));
-      break;
-    case "za":
-      list.sort((a, b) => b.name.localeCompare(a.name));
-      break;
-    case "set":
-      list.sort((a, b) => a.set.name.localeCompare(b.set.name));
-      break;
-    case "price-desc":
-      list.sort(
-        (a, b) =>
-          (b.cardmarket?.prices?.averageSellPrice || 0) -
-          (a.cardmarket?.prices?.averageSellPrice || 0)
-      );
-      break;
-    case "price-asc":
-      list.sort(
-        (a, b) =>
-          (a.cardmarket?.prices?.averageSellPrice || 0) -
-          (a.cardmarket?.prices?.averageSellPrice || 0)
-      );
-      break;
-  }
-
-  renderCards(list);
-};
 
 /* =========================
    FICHA CARTA
