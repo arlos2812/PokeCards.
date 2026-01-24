@@ -65,12 +65,7 @@ const loadingText = document.getElementById("loading-text");
    ESTADO
 ========================= */
 let currentSetId = null;
-let page = 1;
-let pageSize = 50;
-let loading = false;
-let finished = false;
 let allCards = [];
-let filtering = false;
 
 /* =========================
    EXPANSIONES
@@ -102,14 +97,10 @@ async function loadSets() {
 }
 
 /* =========================
-   ABRIR EXPANSIÓN
+   ABRIR EXPANSIÓN (CARGA TODO)
 ========================= */
-function openSet(id, name) {
+async function openSet(id, name) {
   currentSetId = id;
-  page = 1;
-  finished = false;
-  loading = false;
-  filtering = false;
   allCards = [];
 
   cardsContainer.innerHTML = "";
@@ -118,47 +109,38 @@ function openSet(id, name) {
   cardScreen.classList.add("hidden");
 
   setTitle.textContent = name;
-  loadNextPage(true);
-}
 
-/* =========================
-   CARGA CARTAS
-========================= */
-async function loadNextPage(auto = false) {
-  if (loading || finished || filtering) return;
-
-  loading = true;
   loader.classList.remove("hidden");
   loadingText.textContent = "Cargando cartas…";
 
-  const res = await fetch(
-    `https://api.pokemontcg.io/v2/cards?q=set.id:${currentSetId}&page=${page}&pageSize=${pageSize}`,
-    { headers: { "X-Api-Key": API_KEY } }
-  );
-  const data = await res.json();
+  let page = 1;
+  let finished = false;
 
-  if (!data.data || data.data.length === 0) {
-    finished = true;
-    loader.classList.add("hidden");
-    return;
+  while (!finished) {
+    const res = await fetch(
+      `https://api.pokemontcg.io/v2/cards?q=set.id:${id}&page=${page}&pageSize=250`,
+      { headers: { "X-Api-Key": API_KEY } }
+    );
+    const data = await res.json();
+
+    if (!data.data || data.data.length === 0) {
+      finished = true;
+      break;
+    }
+
+    data.data.forEach(card => {
+      allCards.push(card);
+      renderCard(card);
+    });
+
+    page++;
   }
 
-  data.data.forEach(card => {
-    allCards.push(card);
-    renderCard(card);
-  });
-
-  page++;
-  loading = false;
   loader.classList.add("hidden");
-
-  if (auto && !filtering) {
-    setTimeout(() => loadNextPage(true), 300);
-  }
 }
 
 /* =========================
-   RENDER CARTA (UNA SOLA FUNCIÓN)
+   RENDER CARTA
 ========================= */
 function renderCard(card) {
   const price =
@@ -178,11 +160,9 @@ function renderCard(card) {
 }
 
 /* =========================
-   FILTROS (AHORA SÍ)
+   FILTROS (AHORA SÍ, SIN TRAMPAS)
 ========================= */
 filterSelect.onchange = () => {
-  filtering = true;
-
   let list = [...allCards];
 
   switch (filterSelect.value) {
@@ -216,7 +196,7 @@ filterSelect.onchange = () => {
 };
 
 /* =========================
-   FICHA CARTA (COMO ANTES)
+   FICHA CARTA (COMO TE GUSTA)
 ========================= */
 function openCard(card) {
   cardsScreen.classList.add("hidden");
