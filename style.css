@@ -56,7 +56,13 @@ button {
   cursor: pointer;
 }
 
-/* ===== TOPBAR ===== */
+/* ===== TITULOS ===== */
+h2 {
+  text-align: center; /* 🔥 ESTO CENTRA “EXPANSIONES” */
+  margin: 10px 0;
+}
+
+/* ===== TOPBAR CARTAS ===== */
 .cards-topbar {
   display: flex;
   align-items: center;
@@ -70,7 +76,7 @@ button {
   border-radius: 10px;
 }
 
-/* ===== GRID GENERAL (CENTRADO) ===== */
+/* ===== GRID GENERAL ===== */
 .grid {
   display: grid;
   gap: 16px;
@@ -79,7 +85,7 @@ button {
   margin: 0 auto;
 }
 
-/* ===== EXPANSIONES CENTRADAS ===== */
+/* ===== EXPANSIONES ===== */
 #sets {
   grid-template-columns: repeat(auto-fit, minmax(160px, 200px));
   justify-content: center;
