@@ -8,23 +8,19 @@
 </head>
 <body>
 
-<header>
-  <h1>PokeCards</h1>
-</header>
+<h1 id="title">PokeCards</h1>
 
-<!-- LOADER -->
-<div id="global-loading" class="loading hidden">
-  <div class="spinner"></div>
-  <div id="loading-text">Cargando expansiones…</div>
+<button id="music-toggle">▶️ Música</button>
+
+<audio id="music-player"></audio>
+
+<div id="global-loading">
+  <p id="loading-text">Cargando expansiones…</p>
 </div>
 
-<!-- EXPANSIONES -->
-<section>
-  <h2 class="center-title">Expansiones</h2>
-  <div id="sets" class="grid"></div>
-</section>
+<div id="sets"></div>
 
-<!-- ⚠️ SCRIPT AL FINAL, OBLIGATORIO -->
+<!-- ⚠️ SCRIPT CON DEFER -->
 <script src="app.js" defer></script>
 
 </body>
