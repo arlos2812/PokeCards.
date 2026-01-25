@@ -27,7 +27,7 @@ toggle.onclick = () => {
   }
 };
 
-volume.oninput = () => (music.volume = volume.value);
+volume.oninput = () => music.volume = volume.value;
 
 music.onended = () => {
   songIndex = (songIndex + 1) % songs.length;
@@ -73,7 +73,7 @@ async function loadSets() {
     d.innerHTML = `
       <img src="${set.images.logo}">
       <h3>${set.name}</h3>
-      <div class="set-date">${set.releaseDate || ""}</div>
+      <div>${set.releaseDate || ""}</div>
     `;
     d.onclick = () => openSet(set.id, set.name);
     setsDiv.appendChild(d);
@@ -138,10 +138,14 @@ filter.onchange = () => {
   list.forEach(renderCard);
 };
 
-/* ========= CARTA ABIERTA (INFO COMPLETA) ========= */
+/* ========= CARTA ABIERTA ========= */
 function openCard(card) {
   cardsScreen.classList.add("hidden");
   cardScreen.classList.remove("hidden");
+
+  const attacks = card.attacks
+    ? card.attacks.map(a => `• ${a.name} (${a.damage || "0"})`).join("<br>")
+    : "—";
 
   cardDetail.innerHTML = `
     <button id="back-to-cards">⬅ Volver</button>
@@ -149,12 +153,14 @@ function openCard(card) {
     <img src="${card.images.large}">
     <h2>${card.name}</h2>
 
-    <p><b>Número:</b> ${card.number} / ${card.set.total}</p>
-    <p><b>Set:</b> ${card.set.name}</p>
-    <p><b>Fecha:</b> ${card.set.releaseDate || "—"}</p>
+    <p><b>Set:</b> ${card.set?.name || "—"}</p>
+    <p><b>Fecha:</b> ${card.set?.releaseDate || "—"}</p>
+    <p><b>Número:</b> ${card.number}${card.set?.total ? " / " + card.set.total : ""}</p>
     <p><b>Rareza:</b> ${card.rarity || "—"}</p>
     <p><b>HP:</b> ${card.hp || "—"}</p>
-    <p><b>Tipo:</b> ${card.types?.join(", ") || "—"}</p>
+    <p><b>Tipo:</b> ${card.types ? card.types.join(", ") : "—"}</p>
+    <p><b>Ataques:</b><br>${attacks}</p>
+    <p><b>Ilustrador:</b> ${card.artist || "—"}</p>
 
     <p class="price">
       <b>Precio medio:</b>
@@ -166,7 +172,7 @@ function openCard(card) {
     </p>
 
     <a href="https://www.pricecharting.com/search-products?q=${encodeURIComponent(
-      card.name + " " + card.set.name
+      card.name + " " + (card.set?.name || "")
     )}" target="_blank">
       PriceCharting
     </a>
