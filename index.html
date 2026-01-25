@@ -2,29 +2,59 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>PokeCards</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PokeCards</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-  <header>
-    <h1>PokeCards</h1>
+<header>
+  <div class="logo">
+    <img src="icons/icon-192.png" alt="logo">
+    <span class="app-name">PokeCards</span>
+  </div>
 
-    <div>
-      <button id="music-toggle">▶️ Música</button>
-      <input id="music-volume" type="range" min="0" max="1" step="0.01" value="0.5">
-    </div>
-  </header>
+  <div class="music-bar">
+    <button id="music-toggle">▶️ Música</button>
+    <input id="music-volume" type="range" min="0" max="1" step="0.01" value="0.5">
+    <audio id="music-player"></audio>
+  </div>
+</header>
 
-  <audio id="music-player"></audio>
+<!-- LOADER -->
+<div id="global-loading" class="loading hidden">
+  <div class="loader-box">
+    <div class="spinner"></div>
+    <p id="loading-text">Cargando…</p>
+  </div>
+</div>
 
-  <p id="loading-text">Cargando expansiones…</p>
+<section id="sets-screen">
+  <h2>Expansiones</h2>
+  <div id="sets" class="grid"></div>
+</section>
 
-  <div id="sets"></div>
+<section id="cards-screen" class="hidden">
+  <div class="cards-topbar">
+    <button id="back-to-sets">⬅ Volver</button>
+    <select id="filter"></select>
+  </div>
 
-  <!-- ⚠️ IMPORTANTE: SOLO REFERENCIA AL ARCHIVO -->
-  <script src="app.js" defer></script>
+  <h2 id="set-title"></h2>
 
+  <div id="cards" class="grid"></div>
+
+  <!-- 🔥 BOTÓN CARGAR MÁS -->
+  <div class="load-more-wrapper">
+    <button id="load-more" class="hidden">⬇ Cargar más cartas</button>
+  </div>
+</section>
+
+<section id="card-screen" class="hidden">
+  <div id="card-detail"></div>
+</section>
+
+<script src="app.js"></script>
 </body>
 </html>
