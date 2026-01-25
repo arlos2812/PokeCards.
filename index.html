@@ -6,6 +6,7 @@
   <title>PokeCards</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
 <header>
@@ -13,8 +14,23 @@
     <img src="icons/icon-192.png" alt="logo">
     <span class="app-name">PokeCards</span>
   </div>
+
+  <!-- 🎵 MÚSICA -->
+  <div class="music-bar">
+    <button id="music-toggle">▶️ Música</button>
+    <input
+      id="music-volume"
+      type="range"
+      min="0"
+      max="1"
+      step="0.01"
+      value="0.5"
+    >
+    <audio id="music-player"></audio>
+  </div>
 </header>
 
+<!-- 🔄 LOADER -->
 <div id="global-loading" class="loading hidden">
   <div class="loader-box">
     <div class="spinner"></div>
@@ -22,11 +38,13 @@
   </div>
 </div>
 
+<!-- EXPANSIONES -->
 <section id="sets-screen">
   <h2>Expansiones</h2>
   <div id="sets" class="grid"></div>
 </section>
 
+<!-- CARTAS -->
 <section id="cards-screen" class="hidden">
   <div class="cards-topbar">
     <button id="back-to-sets">⬅ Volver</button>
@@ -42,6 +60,7 @@
   </div>
 </section>
 
+<!-- CARTA ABIERTA -->
 <section id="card-screen" class="hidden">
   <div id="card-detail"></div>
 </section>
