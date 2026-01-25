@@ -1,8 +1,8 @@
-/* ===== LOADER ===== */
+/* ========= LOADER ========= */
 const loader = document.getElementById("global-loading");
 const loadingText = document.getElementById("loading-text");
 
-/* ===== UI ===== */
+/* ========= UI ========= */
 const setsScreen = document.getElementById("sets-screen");
 const cardsScreen = document.getElementById("cards-screen");
 const cardScreen = document.getElementById("card-screen");
@@ -15,19 +15,19 @@ const setTitle = document.getElementById("set-title");
 const filter = document.getElementById("filter");
 const loadMoreBtn = document.getElementById("load-more");
 
-let allCards = [];
-let visibleCount = 30;
+let currentSetId = null;
+let currentPage = 1;
+const pageSize = 30;
+let hasMore = true;
 
-/* ===== FILTROS ===== */
+/* FILTROS */
 filter.innerHTML = `
   <option value="az">A–Z</option>
   <option value="za">Z–A</option>
-  <option value="price-desc">Precio ↓</option>
-  <option value="price-asc">Precio ↑</option>
   <option value="num">Número</option>
 `;
 
-/* ===== EXPANSIONES ===== */
+/* EXPANSIONES */
 async function loadSets() {
   loader.classList.remove("hidden");
   loadingText.textContent = "Cargando expansiones…";
@@ -51,33 +51,35 @@ async function loadSets() {
   loader.classList.add("hidden");
 }
 
-/* ===== CARTAS ===== */
+/* ABRIR EXPANSION */
 async function openSet(id, name) {
-  setTitle.textContent = name;
+  currentSetId = id;
+  currentPage = 1;
+  hasMore = true;
+
+  setTitle.textContent = name; // 🔥 ESTE TEXTO AHORA ESTA CENTRADO POR CSS
   setsScreen.classList.add("hidden");
   cardsScreen.classList.remove("hidden");
+  cardsDiv.innerHTML = "";
+
+  await loadMoreCards();
+}
+
+/* CARGAR CARTAS (30) */
+async function loadMoreCards() {
+  if (!hasMore) return;
 
   loader.classList.remove("hidden");
   loadingText.textContent = "Cargando cartas…";
 
-  cardsDiv.innerHTML = "";
-  allCards = [];
-  visibleCount = 30;
-
-  const res = await fetch(`https://api.pokemontcg.io/v2/cards?q=set.id:${id}`);
+  const res = await fetch(
+    `https://api.pokemontcg.io/v2/cards?q=set.id:${currentSetId}&page=${currentPage}&pageSize=${pageSize}`
+  );
   const data = await res.json();
 
-  allCards = data.data;
-  renderCards();
+  if (data.data.length < pageSize) hasMore = false;
 
-  loader.classList.add("hidden");
-}
-
-/* ===== RENDER CARTAS ===== */
-function renderCards() {
-  cardsDiv.innerHTML = "";
-
-  allCards.slice(0, visibleCount).forEach(card => {
+  data.data.forEach(card => {
     const d = document.createElement("div");
     d.className = "card";
     d.innerHTML = `
@@ -89,34 +91,16 @@ function renderCards() {
     cardsDiv.appendChild(d);
   });
 
-  if (visibleCount < allCards.length) {
-    loadMoreBtn.classList.remove("hidden");
-  } else {
-    loadMoreBtn.classList.add("hidden");
-  }
+  currentPage++;
+  loader.classList.add("hidden");
+
+  loadMoreBtn.classList.toggle("hidden", !hasMore);
 }
 
-/* ===== CARGAR MÁS ===== */
-loadMoreBtn.onclick = () => {
-  visibleCount += 30;
-  renderCards();
-};
+/* BOTON CARGAR MAS */
+loadMoreBtn.onclick = loadMoreCards;
 
-/* ===== FILTRAR ===== */
-filter.onchange = () => {
-  if (filter.value === "az") allCards.sort((a,b)=>a.name.localeCompare(b.name));
-  if (filter.value === "za") allCards.sort((a,b)=>b.name.localeCompare(a.name));
-  if (filter.value === "price-desc")
-    allCards.sort((a,b)=>(b.cardmarket?.prices?.averageSellPrice||0)-(a.cardmarket?.prices?.averageSellPrice||0));
-  if (filter.value === "price-asc")
-    allCards.sort((a,b)=>(a.cardmarket?.prices?.averageSellPrice||0)-(b.cardmarket?.prices?.averageSellPrice||0));
-  if (filter.value === "num")
-    allCards.sort((a,b)=>parseInt(a.number)-parseInt(b.number));
-
-  renderCards();
-};
-
-/* ===== CARTA ABIERTA ===== */
+/* CARTA ABIERTA */
 function openCard(card) {
   cardsScreen.classList.add("hidden");
   cardScreen.classList.remove("hidden");
@@ -128,9 +112,6 @@ function openCard(card) {
     <p><b>Set:</b> ${card.set.name}</p>
     <p><b>Fecha:</b> ${card.set.releaseDate || "—"}</p>
     <p><b>Número:</b> ${card.number}</p>
-    <p><b>Rareza:</b> ${card.rarity || "—"}</p>
-    <p><b>HP:</b> ${card.hp || "—"}</p>
-    <p><b>Tipo:</b> ${card.types?.join(", ") || "—"}</p>
   `;
 
   document.getElementById("back-to-cards").onclick = () => {
@@ -139,7 +120,7 @@ function openCard(card) {
   };
 }
 
-/* ===== VOLVER ===== */
+/* VOLVER */
 document.getElementById("back-to-sets").onclick = () => {
   cardsScreen.classList.add("hidden");
   setsScreen.classList.remove("hidden");
