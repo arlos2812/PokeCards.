@@ -7,16 +7,16 @@ const API_HEADERS = {
   }
 };
 
-/* ========= 🎵 MÚSICA (REPO EXTERNO – FIX DEFINITIVO) ========= */
+/* ========= 🎵 MÚSICA (URL CORRECTA) ========= */
 const music = document.getElementById("music-player");
 const toggleMusic = document.getElementById("music-toggle");
 const volumeControl = document.getElementById("music-volume");
 
 if (music && toggleMusic && volumeControl) {
   const songs = [
-    "https://arlosc2812.github.io/pokecards-assets/sounds/song1.mp3",
-    "https://arlosc2812.github.io/pokecards-assets/sounds/song2.mp3",
-    "https://arlosc2812.github.io/pokecards-assets/sounds/song3.mp3"
+    "https://arlos2812.github.io/pokecards-assets/sounds/song1.mp3",
+    "https://arlos2812.github.io/pokecards-assets/sounds/song2.mp3",
+    "https://arlos2812.github.io/pokecards-assets/sounds/song3.mp3"
   ];
 
   let currentSong = 0;
@@ -120,7 +120,7 @@ async function openSet(id, name) {
   await loadMoreCards();
 }
 
-/* ========= CARGAR CARTAS (30 REAL) ========= */
+/* ========= CARGAR CARTAS ========= */
 async function loadMoreCards() {
   if (!hasMore) return;
 
@@ -152,7 +152,7 @@ async function loadMoreCards() {
   loadMoreBtn.classList.toggle("hidden", !hasMore);
 }
 
-/* ========= CARTA ABIERTA (INFO COMPLETA) ========= */
+/* ========= CARTA ABIERTA ========= */
 function openCard(card) {
   cardsScreen.classList.add("hidden");
   cardScreen.classList.remove("hidden");
@@ -165,22 +165,12 @@ function openCard(card) {
 
   cardDetail.innerHTML = `
     <button id="back-to-cards">⬅ Volver</button>
-
     <img src="${card.images.large}">
     <h2>${card.name}</h2>
-
     <p><b>Set:</b> ${card.set.name}</p>
     <p><b>Fecha:</b> ${card.set.releaseDate || "—"}</p>
     <p><b>Número:</b> ${card.number} / ${card.set.printedTotal}</p>
     <p><b>Rareza:</b> ${card.rarity || "—"}</p>
-    <p><b>HP:</b> ${card.hp || "—"}</p>
-    <p><b>Tipos:</b> ${card.types?.join(", ") || "—"}</p>
-
-    <h3>Precios</h3>
-    <p>
-      <b>Media Cardmarket:</b>
-      ${card.cardmarket?.prices?.averageSellPrice ?? "—"} €
-    </p>
 
     <div style="margin-top:16px">
       <a href="${priceChartingUrl}" target="_blank">
