@@ -7,7 +7,6 @@
 
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0b0b0b">
-
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -16,6 +15,12 @@
 <header>
   <h1 class="logo">PokeCards</h1>
 </header>
+
+<!-- 🎵 MUSICA -->
+<div class="music-bar">
+  <button id="music-toggle">▶ Música</button>
+  <input id="music-volume" type="range" min="0" max="1" step="0.01" value="0.4">
+</div>
 
 <!-- LOADER -->
 <div id="global-loading" class="loading hidden">
@@ -30,16 +35,10 @@
 
 <!-- CARTAS -->
 <section id="cards-screen" class="hidden">
-  <button id="back-to-sets" class="load-more">⬅ Volver</button>
-
-  <select id="filter"></select>
-
+  <button id="back-to-sets" class="load-more">⬅ Salir</button>
   <h2 id="set-title" class="section-title"></h2>
   <div id="cards" class="grid"></div>
-
-  <button id="load-more" class="load-more hidden">
-    ⬇ Cargar más cartas
-  </button>
+  <button id="load-more" class="load-more">⬇ Cargar más</button>
 </section>
 
 <!-- CARTA -->
@@ -47,6 +46,7 @@
   <div id="card-detail"></div>
 </section>
 
+<audio id="music-player"></audio>
 <script src="app.js"></script>
 </body>
 </html>
