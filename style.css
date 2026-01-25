@@ -1,8 +1,10 @@
 @font-face {
   font-family: Pokemon;
   src: url("fonts/PokemonSolid.ttf") format("truetype");
+  font-display: swap;
 }
 
+/* RESET */
 * {
   box-sizing: border-box;
   font-family: Pokemon, sans-serif;
@@ -14,7 +16,7 @@ body {
   color: white;
 }
 
-/* HEADER */
+/* ===== HEADER ===== */
 header {
   text-align: center;
   padding: 15px;
@@ -29,6 +31,7 @@ header {
 
 .logo img {
   height: 56px;
+  width: auto;
 }
 
 .app-name {
@@ -37,28 +40,57 @@ header {
   -webkit-text-stroke: 2px #2a75bb;
 }
 
-/* TOPBAR */
+/* ===== MUSIC ===== */
+.music-bar {
+  margin-top: 10px;
+}
+
+/* ===== BUTTONS ===== */
+button {
+  background: #ffcb05;
+  color: #2a75bb;
+  border: none;
+  border-radius: 16px;
+  padding: 12px 22px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* ===== TOPBAR ===== */
 .cards-topbar {
   display: flex;
   align-items: center;
+  gap: 12px;
   padding: 10px 16px;
 }
 
 .cards-topbar select {
   margin-left: auto;
-  padding: 8px;
+  padding: 8px 12px;
+  border-radius: 10px;
 }
 
-/* GRID CENTRADO */
+/* ===== GRID GENERAL (CENTRADO) ===== */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 16px;
   padding: 16px;
   max-width: 1200px;
   margin: 0 auto;
 }
 
+/* ===== EXPANSIONES CENTRADAS ===== */
+#sets {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 200px));
+  justify-content: center;
+}
+
+/* ===== CARTAS ===== */
+#cards {
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+}
+
+/* ===== SETS & CARDS ===== */
 .set-card,
 .card {
   background: #1c1c1c;
@@ -68,23 +100,47 @@ header {
   cursor: pointer;
 }
 
-img {
+.set-card img,
+.card img {
   width: 100%;
   height: auto;
+  display: block;
 }
 
 .price {
   color: #00ff66;
+  margin: 6px 0;
 }
 
-/* LOAD MORE */
+/* ===== CARD DETAIL ===== */
+#card-screen {
+  display: flex;
+  justify-content: center;
+}
+
+#card-detail {
+  max-width: 520px;
+  width: 100%;
+  padding: 20px;
+  text-align: center;
+}
+
+#card-detail img {
+  width: 100%;
+}
+
+/* ===== LOAD MORE ===== */
 .load-more-wrapper {
   display: flex;
   justify-content: center;
-  padding: 24px;
+  padding: 24px 0;
 }
 
-/* LOADER */
+#load-more {
+  font-size: 18px;
+}
+
+/* ===== LOADER ===== */
 .loading {
   position: fixed;
   inset: 0;
@@ -106,6 +162,7 @@ img {
   border-top: 6px solid #ffcb05;
   border-radius: 50%;
   animation: spin 1s linear infinite;
+  margin: auto;
 }
 
 #loading-text {
@@ -113,10 +170,15 @@ img {
   font-size: 18px;
 }
 
+/* ===== ANIM ===== */
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
+/* ===== UTIL ===== */
 .hidden {
   display: none !important;
+  pointer-events: none !important;
 }
