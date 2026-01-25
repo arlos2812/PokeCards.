@@ -1,42 +1,3 @@
-/* ========= 🎵 MÚSICA ========= */
-const music = document.getElementById("music-player");
-const toggleMusic = document.getElementById("music-toggle");
-const volumeControl = document.getElementById("music-volume");
-
-const songs = [
-  "sounds/song1.mp3",
-  "sounds/song2.mp3",
-  "sounds/song3.mp3"
-];
-
-let currentSong = 0;
-let isPlaying = false;
-
-music.volume = volumeControl.value;
-
-toggleMusic.onclick = () => {
-  if (!isPlaying) {
-    music.src = songs[currentSong];
-    music.play().catch(() => {});
-    toggleMusic.textContent = "⏸️ Música";
-    isPlaying = true;
-  } else {
-    music.pause();
-    toggleMusic.textContent = "▶️ Música";
-    isPlaying = false;
-  }
-};
-
-volumeControl.oninput = () => {
-  music.volume = volumeControl.value;
-};
-
-music.onended = () => {
-  currentSong = (currentSong + 1) % songs.length;
-  music.src = songs[currentSong];
-  music.play().catch(() => {});
-};
-
 /* ========= LOADER ========= */
 const loader = document.getElementById("global-loading");
 const loadingText = document.getElementById("loading-text");
@@ -59,14 +20,14 @@ let currentPage = 1;
 const pageSize = 30;
 let hasMore = true;
 
-/* ========= FILTROS ========= */
+/* FILTROS */
 filter.innerHTML = `
   <option value="az">A–Z</option>
   <option value="za">Z–A</option>
   <option value="num">Número</option>
 `;
 
-/* ========= EXPANSIONES ========= */
+/* EXPANSIONES */
 async function loadSets() {
   loader.classList.remove("hidden");
   loadingText.textContent = "Cargando expansiones…";
@@ -90,13 +51,13 @@ async function loadSets() {
   loader.classList.add("hidden");
 }
 
-/* ========= ABRIR EXPANSIÓN ========= */
+/* ABRIR EXPANSION */
 async function openSet(id, name) {
   currentSetId = id;
   currentPage = 1;
   hasMore = true;
 
-  setTitle.textContent = name;
+  setTitle.textContent = name; // 🔥 ESTE TEXTO AHORA ESTA CENTRADO POR CSS
   setsScreen.classList.add("hidden");
   cardsScreen.classList.remove("hidden");
   cardsDiv.innerHTML = "";
@@ -104,7 +65,7 @@ async function openSet(id, name) {
   await loadMoreCards();
 }
 
-/* ========= CARGAR 30 CARTAS REALES ========= */
+/* CARGAR CARTAS (30) */
 async function loadMoreCards() {
   if (!hasMore) return;
 
@@ -118,7 +79,17 @@ async function loadMoreCards() {
 
   if (data.data.length < pageSize) hasMore = false;
 
-  data.data.forEach(renderCard);
+  data.data.forEach(card => {
+    const d = document.createElement("div");
+    d.className = "card";
+    d.innerHTML = `
+      <img src="${card.images.small}">
+      <div class="price">${card.cardmarket?.prices?.averageSellPrice ?? "—"} €</div>
+      <h4>${card.name}</h4>
+    `;
+    d.onclick = () => openCard(card);
+    cardsDiv.appendChild(d);
+  });
 
   currentPage++;
   loader.classList.add("hidden");
@@ -126,23 +97,10 @@ async function loadMoreCards() {
   loadMoreBtn.classList.toggle("hidden", !hasMore);
 }
 
-/* ========= RENDER CARTA ========= */
-function renderCard(card) {
-  const d = document.createElement("div");
-  d.className = "card";
-  d.innerHTML = `
-    <img src="${card.images.small}">
-    <div class="price">${card.cardmarket?.prices?.averageSellPrice ?? "—"} €</div>
-    <h4>${card.name}</h4>
-  `;
-  d.onclick = () => openCard(card);
-  cardsDiv.appendChild(d);
-}
-
-/* ========= BOTÓN CARGAR MÁS ========= */
+/* BOTON CARGAR MAS */
 loadMoreBtn.onclick = loadMoreCards;
 
-/* ========= CARTA ABIERTA ========= */
+/* CARTA ABIERTA */
 function openCard(card) {
   cardsScreen.classList.add("hidden");
   cardScreen.classList.remove("hidden");
@@ -154,7 +112,6 @@ function openCard(card) {
     <p><b>Set:</b> ${card.set.name}</p>
     <p><b>Fecha:</b> ${card.set.releaseDate || "—"}</p>
     <p><b>Número:</b> ${card.number}</p>
-    <p><b>Rareza:</b> ${card.rarity || "—"}</p>
   `;
 
   document.getElementById("back-to-cards").onclick = () => {
@@ -163,7 +120,7 @@ function openCard(card) {
   };
 }
 
-/* ========= VOLVER ========= */
+/* VOLVER */
 document.getElementById("back-to-sets").onclick = () => {
   cardsScreen.classList.add("hidden");
   setsScreen.classList.remove("hidden");
