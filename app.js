@@ -7,16 +7,16 @@ const API_HEADERS = {
   }
 };
 
-/* ========= 🎵 MÚSICA (RUTA FIX) ========= */
+/* ========= 🎵 MÚSICA (RUTA GITHUB PAGES CON PUNTO) ========= */
 const music = document.getElementById("music-player");
 const toggleMusic = document.getElementById("music-toggle");
 const volumeControl = document.getElementById("music-volume");
 
 if (music && toggleMusic && volumeControl) {
   const songs = [
-    "./sounds/song1.mp3",
-    "./sounds/song2.mp3",
-    "./sounds/song3.mp3"
+    "/PokeCards./sounds/song1.mp3",
+    "/PokeCards./sounds/song2.mp3",
+    "/PokeCards./sounds/song3.mp3"
   ];
 
   let currentSong = 0;
