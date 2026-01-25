@@ -7,16 +7,16 @@ const API_HEADERS = {
   }
 };
 
-/* ========= 🎵 MÚSICA (FUNCIONA) ========= */
+/* ========= 🎵 MÚSICA (RUTA FIX) ========= */
 const music = document.getElementById("music-player");
 const toggleMusic = document.getElementById("music-toggle");
 const volumeControl = document.getElementById("music-volume");
 
 if (music && toggleMusic && volumeControl) {
   const songs = [
-    "sounds/song1.mp3",
-    "sounds/song2.mp3",
-    "sounds/song3.mp3"
+    "./sounds/song1.mp3",
+    "./sounds/song2.mp3",
+    "./sounds/song3.mp3"
   ];
 
   let currentSong = 0;
@@ -120,7 +120,7 @@ async function openSet(id, name) {
   await loadMoreCards();
 }
 
-/* ========= CARGAR CARTAS (30 REAL) ========= */
+/* ========= CARGAR CARTAS ========= */
 async function loadMoreCards() {
   if (!hasMore) return;
 
@@ -158,7 +158,7 @@ function openCard(card) {
   cardScreen.classList.remove("hidden");
 
   const priceChartingUrl =
-    `https://www.pricecharting.com/search-products?type=prices&q=` +
+    "https://www.pricecharting.com/search-products?type=prices&q=" +
     encodeURIComponent(card.name + " " + card.set.name);
 
   const cardmarketUrl = card.cardmarket?.url;
