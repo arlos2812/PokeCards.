@@ -1,29 +1,24 @@
 document.addEventListener("DOMContentLoaded", () => {
 
+/* ================= CONFIG ================= */
 const API_KEY = "3d240d93-e6be-4c24-a9fc-c7b4593dd5fc";
-const API_HEADERS = { headers: { "X-Api-Key": API_KEY } };
+const CARD_HEADERS = { headers: { "X-Api-Key": API_KEY } };
 
 const loader = document.getElementById("global-loading");
 const loadingText = document.getElementById("loading-text");
+
 const setsDiv = document.getElementById("sets");
 
-/* ===== TEMPORIZADOR DE SEGURIDAD ===== */
-let safetyTimeout = setTimeout(() => {
-  loadingText.textContent = "La carga está tardando demasiado 😕";
-  loader.classList.add("hidden");
-}, 20000); // 20 segundos
-
+/* ================= EXPANSIONES (SIN KEY) ================= */
 async function loadSets() {
   loader.classList.remove("hidden");
   loadingText.textContent = "Cargando expansiones…";
 
   try {
-    const res = await fetch("https://api.pokemontcg.io/v2/sets", API_HEADERS);
+    const res = await fetch("https://api.pokemontcg.io/v2/sets");
     const data = await res.json();
 
-    if (!data || !Array.isArray(data.data)) {
-      throw new Error("Respuesta inválida");
-    }
+    if (!Array.isArray(data.data)) throw new Error();
 
     const sets = data.data
       .sort((a, b) => new Date(b.releaseDate) - new Date(a.releaseDate))
@@ -43,13 +38,13 @@ async function loadSets() {
     });
 
   } catch (e) {
-    loadingText.textContent = "No se pudieron cargar las expansiones 😕";
+    loadingText.textContent = "Error cargando expansiones 😕";
   } finally {
-    clearTimeout(safetyTimeout);
     loader.classList.add("hidden");
   }
 }
 
+/* ================= INIT ================= */
 loadSets();
 
 });
