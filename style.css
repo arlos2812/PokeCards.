@@ -4,6 +4,7 @@
   font-display: swap;
 }
 
+/* RESET */
 * {
   box-sizing: border-box;
   font-family: Pokemon, sans-serif;
@@ -38,12 +39,7 @@ header {
   -webkit-text-stroke: 2px #2a75bb;
 }
 
-/* MUSIC */
-.music-bar {
-  margin-top: 10px;
-}
-
-/* BUTTONS */
+/* BOTONES */
 button {
   background: #ffcb05;
   color: #2a75bb;
@@ -54,7 +50,15 @@ button {
   cursor: pointer;
 }
 
-/* TOPBAR */
+/* 🔥 TITULOS CENTRADOS (EXPANSIONES Y SET) */
+#sets-screen h2,
+#set-title {
+  text-align: center;
+  width: 100%;
+  margin: 12px 0;
+}
+
+/* TOPBAR CARTAS */
 .cards-topbar {
   display: flex;
   align-items: center;
@@ -68,17 +72,27 @@ button {
   border-radius: 10px;
 }
 
-/* GRID (CENTRADO) */
+/* GRID GENERAL */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 16px;
   padding: 16px;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-/* SETS & CARDS */
+/* EXPANSIONES */
+#sets {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 200px));
+  justify-content: center;
+}
+
+/* CARTAS */
+#cards {
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+}
+
+/* TARJETAS */
 .set-card,
 .card {
   background: #1c1c1c;
@@ -100,7 +114,7 @@ button {
   margin: 6px 0;
 }
 
-/* CARD DETAIL */
+/* CARTA ABIERTA */
 #card-screen {
   display: flex;
   justify-content: center;
@@ -117,7 +131,7 @@ button {
   width: 100%;
 }
 
-/* LOAD MORE */
+/* CARGAR MAS */
 .load-more-wrapper {
   display: flex;
   justify-content: center;
@@ -161,5 +175,4 @@ button {
 /* UTIL */
 .hidden {
   display: none !important;
-  pointer-events: none !important;
 }
