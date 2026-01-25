@@ -1,7 +1,6 @@
 @font-face {
   font-family: Pokemon;
   src: url("fonts/PokemonSolid.ttf") format("truetype");
-  font-display: swap;
 }
 
 * {
@@ -38,37 +37,19 @@ header {
   -webkit-text-stroke: 2px #2a75bb;
 }
 
-/* MUSIC */
-.music-bar {
-  margin-top: 10px;
-}
-
-/* BUTTONS */
-button {
-  background: #ffcb05;
-  color: #2a75bb;
-  border: none;
-  border-radius: 16px;
-  padding: 12px 22px;
-  font-size: 16px;
-  cursor: pointer;
-}
-
 /* TOPBAR */
 .cards-topbar {
   display: flex;
   align-items: center;
-  gap: 12px;
   padding: 10px 16px;
 }
 
 .cards-topbar select {
   margin-left: auto;
-  padding: 8px 12px;
-  border-radius: 10px;
+  padding: 8px;
 }
 
-/* GRID (CENTRADO) */
+/* GRID CENTRADO */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -78,7 +59,6 @@ button {
   margin: 0 auto;
 }
 
-/* SETS & CARDS */
 .set-card,
 .card {
   background: #1c1c1c;
@@ -88,40 +68,20 @@ button {
   cursor: pointer;
 }
 
-.set-card img,
-.card img {
+img {
   width: 100%;
   height: auto;
-  display: block;
 }
 
 .price {
   color: #00ff66;
-  margin: 6px 0;
-}
-
-/* CARD DETAIL */
-#card-screen {
-  display: flex;
-  justify-content: center;
-}
-
-#card-detail {
-  max-width: 520px;
-  width: 100%;
-  padding: 20px;
-  text-align: center;
-}
-
-#card-detail img {
-  width: 100%;
 }
 
 /* LOAD MORE */
 .load-more-wrapper {
   display: flex;
   justify-content: center;
-  padding: 24px 0;
+  padding: 24px;
 }
 
 /* LOADER */
@@ -146,7 +106,6 @@ button {
   border-top: 6px solid #ffcb05;
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin: auto;
 }
 
 #loading-text {
@@ -158,8 +117,6 @@ button {
   to { transform: rotate(360deg); }
 }
 
-/* UTIL */
 .hidden {
   display: none !important;
-  pointer-events: none !important;
 }
