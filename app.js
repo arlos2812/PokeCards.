@@ -73,7 +73,7 @@ async function openSet(id, name) {
   loader.classList.add("hidden");
 }
 
-/* ===== RENDER ===== */
+/* ===== RENDER CARTAS ===== */
 function renderCards() {
   cardsDiv.innerHTML = "";
 
