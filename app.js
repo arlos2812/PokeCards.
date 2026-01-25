@@ -1,6 +1,47 @@
+/* ========= 🎵 MÚSICA ========= */
+const music = document.getElementById("music-player");
+const toggleMusic = document.getElementById("music-toggle");
+const volumeControl = document.getElementById("music-volume");
+
+const songs = [
+  "sounds/song1.mp3",
+  "sounds/song2.mp3",
+  "sounds/song3.mp3"
+];
+
+let currentSong = 0;
+let isPlaying = false;
+
+music.volume = volumeControl.value;
+
+toggleMusic.onclick = () => {
+  if (!isPlaying) {
+    music.src = songs[currentSong];
+    music.play().catch(() => {});
+    toggleMusic.textContent = "⏸️ Música";
+    isPlaying = true;
+  } else {
+    music.pause();
+    toggleMusic.textContent = "▶️ Música";
+    isPlaying = false;
+  }
+};
+
+volumeControl.oninput = () => {
+  music.volume = volumeControl.value;
+};
+
+music.onended = () => {
+  currentSong = (currentSong + 1) % songs.length;
+  music.src = songs[currentSong];
+  music.play().catch(() => {});
+};
+
+/* ========= LOADER ========= */
 const loader = document.getElementById("global-loading");
 const loadingText = document.getElementById("loading-text");
 
+/* ========= UI ========= */
 const setsScreen = document.getElementById("sets-screen");
 const cardsScreen = document.getElementById("cards-screen");
 const cardScreen = document.getElementById("card-screen");
@@ -15,18 +56,17 @@ const loadMoreBtn = document.getElementById("load-more");
 
 let currentSetId = null;
 let currentPage = 1;
-let pageSize = 30;
+const pageSize = 30;
 let hasMore = true;
-let allCards = [];
 
-/* FILTROS */
+/* ========= FILTROS ========= */
 filter.innerHTML = `
   <option value="az">A–Z</option>
   <option value="za">Z–A</option>
   <option value="num">Número</option>
 `;
 
-/* EXPANSIONES */
+/* ========= EXPANSIONES ========= */
 async function loadSets() {
   loader.classList.remove("hidden");
   loadingText.textContent = "Cargando expansiones…";
@@ -50,12 +90,11 @@ async function loadSets() {
   loader.classList.add("hidden");
 }
 
-/* ABRIR SET */
+/* ========= ABRIR EXPANSIÓN ========= */
 async function openSet(id, name) {
   currentSetId = id;
   currentPage = 1;
   hasMore = true;
-  allCards = [];
 
   setTitle.textContent = name;
   setsScreen.classList.add("hidden");
@@ -65,7 +104,7 @@ async function openSet(id, name) {
   await loadMoreCards();
 }
 
-/* CARGAR CARTAS (30 REAL) */
+/* ========= CARGAR 30 CARTAS REALES ========= */
 async function loadMoreCards() {
   if (!hasMore) return;
 
@@ -79,19 +118,15 @@ async function loadMoreCards() {
 
   if (data.data.length < pageSize) hasMore = false;
 
-  data.data.forEach(card => {
-    allCards.push(card);
-    renderCard(card);
-  });
+  data.data.forEach(renderCard);
 
   currentPage++;
   loader.classList.add("hidden");
 
-  if (hasMore) loadMoreBtn.classList.remove("hidden");
-  else loadMoreBtn.classList.add("hidden");
+  loadMoreBtn.classList.toggle("hidden", !hasMore);
 }
 
-/* RENDER CARTA */
+/* ========= RENDER CARTA ========= */
 function renderCard(card) {
   const d = document.createElement("div");
   d.className = "card";
@@ -104,10 +139,10 @@ function renderCard(card) {
   cardsDiv.appendChild(d);
 }
 
-/* BOTÓN CARGAR MÁS */
+/* ========= BOTÓN CARGAR MÁS ========= */
 loadMoreBtn.onclick = loadMoreCards;
 
-/* CARTA ABIERTA */
+/* ========= CARTA ABIERTA ========= */
 function openCard(card) {
   cardsScreen.classList.add("hidden");
   cardScreen.classList.remove("hidden");
@@ -128,10 +163,11 @@ function openCard(card) {
   };
 }
 
-/* VOLVER */
+/* ========= VOLVER ========= */
 document.getElementById("back-to-sets").onclick = () => {
   cardsScreen.classList.add("hidden");
   setsScreen.classList.remove("hidden");
 };
 
+/* INIT */
 loadSets();
