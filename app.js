@@ -20,6 +20,7 @@ async function loadSets() {
       .slice(0,30);
 
     setsDiv.innerHTML = "";
+
     sets.forEach(set => {
       const d = document.createElement("div");
       d.className = "set-card";
