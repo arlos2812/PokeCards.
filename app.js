@@ -7,16 +7,16 @@ const API_HEADERS = {
   }
 };
 
-/* ========= 🎵 MÚSICA (RUTA GITHUB PAGES CON PUNTO) ========= */
+/* ========= 🎵 MÚSICA (REPO EXTERNO – FIX DEFINITIVO) ========= */
 const music = document.getElementById("music-player");
 const toggleMusic = document.getElementById("music-toggle");
 const volumeControl = document.getElementById("music-volume");
 
 if (music && toggleMusic && volumeControl) {
   const songs = [
-    "/PokeCards./sounds/song1.mp3",
-    "/PokeCards./sounds/song2.mp3",
-    "/PokeCards./sounds/song3.mp3"
+    "https://arlosc2812.github.io/pokecards-assets/sounds/song1.mp3",
+    "https://arlosc2812.github.io/pokecards-assets/sounds/song2.mp3",
+    "https://arlosc2812.github.io/pokecards-assets/sounds/song3.mp3"
   ];
 
   let currentSong = 0;
@@ -120,7 +120,7 @@ async function openSet(id, name) {
   await loadMoreCards();
 }
 
-/* ========= CARGAR CARTAS ========= */
+/* ========= CARGAR CARTAS (30 REAL) ========= */
 async function loadMoreCards() {
   if (!hasMore) return;
 
@@ -175,34 +175,6 @@ function openCard(card) {
     <p><b>Rareza:</b> ${card.rarity || "—"}</p>
     <p><b>HP:</b> ${card.hp || "—"}</p>
     <p><b>Tipos:</b> ${card.types?.join(", ") || "—"}</p>
-
-    ${card.attacks ? `
-      <h3>Ataques</h3>
-      ${card.attacks.map(a => `
-        <p>
-          <b>${a.name}</b> (${a.damage || "—"})<br>
-          <small>${a.text || ""}</small>
-        </p>
-      `).join("")}
-    ` : ""}
-
-    ${card.weaknesses ? `
-      <p><b>Debilidades:</b>
-        ${card.weaknesses.map(w => `${w.type} ${w.value}`).join(", ")}
-      </p>
-    ` : ""}
-
-    ${card.resistances ? `
-      <p><b>Resistencias:</b>
-        ${card.resistances.map(r => `${r.type} ${r.value}`).join(", ")}
-      </p>
-    ` : ""}
-
-    ${card.retreatCost ? `
-      <p><b>Coste retirada:</b>
-        ${card.retreatCost.join(", ")}
-      </p>
-    ` : ""}
 
     <h3>Precios</h3>
     <p>
