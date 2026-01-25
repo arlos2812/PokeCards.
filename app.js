@@ -1,29 +1,49 @@
-console.log("1️⃣ app.js cargado");
+console.log("JS iniciado");
 
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("2️⃣ DOM listo");
-
-  const setsDiv = document.getElementById("sets");
+  const musicBtn = document.getElementById("music-toggle");
+  const volume = document.getElementById("music-volume");
+  const music = document.getElementById("music-player");
   const loadingText = document.getElementById("loading-text");
+  const setsDiv = document.getElementById("sets");
 
-  console.log("3️⃣ setsDiv:", setsDiv);
-  console.log("4️⃣ loadingText:", loadingText);
+  /* ===== MÚSICA ===== */
+  const songs = [
+    "https://arlos2812.github.io/pokecards-assets/sounds/song1.mp3",
+    "https://arlos2812.github.io/pokecards-assets/sounds/song2.mp3",
+    "https://arlos2812.github.io/pokecards-assets/sounds/song3.mp3"
+  ];
 
-  if (!setsDiv || !loadingText) {
-    console.error("❌ FALTAN ELEMENTOS EN EL HTML");
-    return;
-  }
+  let current = 0;
+  let playing = false;
 
-  console.log("5️⃣ Lanzando fetch a la API");
+  music.src = songs[current];
+  music.volume = volume.value;
 
+  musicBtn.onclick = async () => {
+    if (!playing) {
+      await music.play();
+      musicBtn.textContent = "⏸️ Música";
+      playing = true;
+    } else {
+      music.pause();
+      musicBtn.textContent = "▶️ Música";
+      playing = false;
+    }
+  };
+
+  volume.oninput = () => music.volume = volume.value;
+
+  music.onended = () => {
+    current = (current + 1) % songs.length;
+    music.src = songs[current];
+    music.play();
+  };
+
+  /* ===== EXPANSIONES ===== */
   fetch("https://api.pokemontcg.io/v2/sets")
-    .then(res => {
-      console.log("6️⃣ Respuesta recibida", res);
-      return res.json();
-    })
+    .then(r => r.json())
     .then(data => {
-      console.log("7️⃣ Datos:", data);
-
       loadingText.textContent = "Expansiones cargadas";
 
       data.data.slice(0, 10).forEach(set => {
@@ -33,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     })
     .catch(err => {
-      console.error("❌ ERROR EN FETCH", err);
+      console.error(err);
       loadingText.textContent = "Error cargando expansiones";
     });
 });
