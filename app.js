@@ -1,13 +1,10 @@
 /* ========= API CONFIG ========= */
 const API_KEY = "3d240d93-e6be-4c24-a9fc-c7b4593dd5fc";
-
 const API_HEADERS = {
-  headers: {
-    "X-Api-Key": API_KEY
-  }
+  headers: { "X-Api-Key": API_KEY }
 };
 
-/* ========= 🎵 MÚSICA (URL CORRECTA) ========= */
+/* ========= 🎵 MÚSICA (3 CANCIONES FUNCIONANDO) ========= */
 const music = document.getElementById("music-player");
 const toggleMusic = document.getElementById("music-toggle");
 const volumeControl = document.getElementById("music-volume");
