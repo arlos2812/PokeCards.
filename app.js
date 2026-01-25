@@ -15,16 +15,11 @@ async function loadSets() {
     const res = await fetch("https://api.pokemontcg.io/v2/sets", API_HEADERS);
     const data = await res.json();
 
-    if (!data.data || !Array.isArray(data.data)) {
-      throw new Error("Datos inválidos");
-    }
-
     const sets = data.data
-      .sort((a, b) => new Date(b.releaseDate) - new Date(a.releaseDate))
-      .slice(0, 30);
+      .sort((a,b)=>new Date(b.releaseDate)-new Date(a.releaseDate))
+      .slice(0,30);
 
     setsDiv.innerHTML = "";
-
     sets.forEach(set => {
       const d = document.createElement("div");
       d.className = "set-card";
@@ -36,11 +31,10 @@ async function loadSets() {
       setsDiv.appendChild(d);
     });
 
+  } catch {
+    loadingText.textContent = "Error cargando expansiones";
+  } finally {
     loader.classList.add("hidden");
-
-  } catch (e) {
-    loadingText.textContent = "No se pudieron cargar las expansiones 😕";
-    setTimeout(() => loader.classList.add("hidden"), 3000);
   }
 }
 
