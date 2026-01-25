@@ -10,13 +10,26 @@
 <body>
 
 <header>
+  <!-- 🔥 LOGO CON IMAGEN -->
   <div class="logo">
-  <img src="icons/icon-192.png" alt="PokeCards logo">
-</div>
+    <img
+      src="icons/icon-192.png"
+      srcset="icons/icon-192.png 192w, icons/icon-512.png 512w"
+      sizes="64px"
+      alt="PokeCards logo"
+    />
+  </div>
 
   <div class="music-bar">
     <button id="music-toggle">▶️ Música</button>
-    <input id="music-volume" type="range" min="0" max="1" step="0.01" value="0.5" />
+    <input
+      id="music-volume"
+      type="range"
+      min="0"
+      max="1"
+      step="0.01"
+      value="0.5"
+    />
     <audio id="music-player"></audio>
   </div>
 </header>
@@ -32,7 +45,6 @@
 
 <!-- CARTAS -->
 <section id="cards-screen" class="hidden">
-  <!-- 🔥 BARRA SUPERIOR OBLIGATORIA -->
   <div class="cards-topbar">
     <button id="back-to-sets">⬅ Volver</button>
     <select id="filter"></select>
@@ -50,4 +62,3 @@
 <script src="app.js"></script>
 </body>
 </html>
-
