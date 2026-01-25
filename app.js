@@ -7,6 +7,52 @@ const API_HEADERS = {
   }
 };
 
+/* ========= 🎵 MÚSICA (FUNCIONA) ========= */
+const music = document.getElementById("music-player");
+const toggleMusic = document.getElementById("music-toggle");
+const volumeControl = document.getElementById("music-volume");
+
+if (music && toggleMusic && volumeControl) {
+  const songs = [
+    "sounds/song1.mp3",
+    "sounds/song2.mp3",
+    "sounds/song3.mp3"
+  ];
+
+  let currentSong = 0;
+  let isPlaying = false;
+
+  music.preload = "auto";
+  music.src = songs[currentSong];
+  music.volume = volumeControl.value;
+
+  toggleMusic.addEventListener("click", async () => {
+    try {
+      if (!isPlaying) {
+        await music.play();
+        isPlaying = true;
+        toggleMusic.textContent = "⏸️ Música";
+      } else {
+        music.pause();
+        isPlaying = false;
+        toggleMusic.textContent = "▶️ Música";
+      }
+    } catch (e) {
+      console.warn("Audio bloqueado por el navegador", e);
+    }
+  });
+
+  volumeControl.addEventListener("input", () => {
+    music.volume = volumeControl.value;
+  });
+
+  music.addEventListener("ended", () => {
+    currentSong = (currentSong + 1) % songs.length;
+    music.src = songs[currentSong];
+    music.play().catch(() => {});
+  });
+}
+
 /* ========= LOADER ========= */
 const loader = document.getElementById("global-loading");
 const loadingText = document.getElementById("loading-text");
@@ -74,7 +120,7 @@ async function openSet(id, name) {
   await loadMoreCards();
 }
 
-/* ========= CARGAR CARTAS ========= */
+/* ========= CARGAR CARTAS (30 REAL) ========= */
 async function loadMoreCards() {
   if (!hasMore) return;
 
@@ -89,24 +135,21 @@ async function loadMoreCards() {
 
   if (data.data.length < pageSize) hasMore = false;
 
-  data.data.forEach(card => renderCard(card));
-  currentPage++;
+  data.data.forEach(card => {
+    const d = document.createElement("div");
+    d.className = "card";
+    d.innerHTML = `
+      <img src="${card.images.small}" loading="lazy">
+      <div class="price">${card.cardmarket?.prices?.averageSellPrice ?? "—"} €</div>
+      <h4>${card.name}</h4>
+    `;
+    d.onclick = () => openCard(card);
+    cardsDiv.appendChild(d);
+  });
 
+  currentPage++;
   loader.classList.add("hidden");
   loadMoreBtn.classList.toggle("hidden", !hasMore);
-}
-
-/* ========= RENDER CARTA ========= */
-function renderCard(card) {
-  const d = document.createElement("div");
-  d.className = "card";
-  d.innerHTML = `
-    <img src="${card.images.small}" loading="lazy">
-    <div class="price">${card.cardmarket?.prices?.averageSellPrice ?? "—"} €</div>
-    <h4>${card.name}</h4>
-  `;
-  d.onclick = () => openCard(card);
-  cardsDiv.appendChild(d);
 }
 
 /* ========= CARTA ABIERTA (INFO COMPLETA) ========= */
@@ -114,7 +157,10 @@ function openCard(card) {
   cardsScreen.classList.add("hidden");
   cardScreen.classList.remove("hidden");
 
-  const priceChartingUrl = `https://www.pricecharting.com/game/pokemon-${card.set.id}/${card.name.toLowerCase().replace(/\s+/g, "-")}-${card.number}`;
+  const priceChartingUrl =
+    `https://www.pricecharting.com/search-products?type=prices&q=` +
+    encodeURIComponent(card.name + " " + card.set.name);
+
   const cardmarketUrl = card.cardmarket?.url;
 
   cardDetail.innerHTML = `
@@ -141,15 +187,21 @@ function openCard(card) {
     ` : ""}
 
     ${card.weaknesses ? `
-      <p><b>Debilidades:</b> ${card.weaknesses.map(w => `${w.type} ${w.value}`).join(", ")}</p>
+      <p><b>Debilidades:</b>
+        ${card.weaknesses.map(w => `${w.type} ${w.value}`).join(", ")}
+      </p>
     ` : ""}
 
     ${card.resistances ? `
-      <p><b>Resistencias:</b> ${card.resistances.map(r => `${r.type} ${r.value}`).join(", ")}</p>
+      <p><b>Resistencias:</b>
+        ${card.resistances.map(r => `${r.type} ${r.value}`).join(", ")}
+      </p>
     ` : ""}
 
     ${card.retreatCost ? `
-      <p><b>Coste retirada:</b> ${card.retreatCost.join(", ")}</p>
+      <p><b>Coste retirada:</b>
+        ${card.retreatCost.join(", ")}
+      </p>
     ` : ""}
 
     <h3>Precios</h3>
