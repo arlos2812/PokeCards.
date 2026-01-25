@@ -1,54 +1,54 @@
+document.addEventListener("DOMContentLoaded", () => {
+
 /* ========= API CONFIG ========= */
 const API_KEY = "3d240d93-e6be-4c24-a9fc-c7b4593dd5fc";
 const API_HEADERS = {
   headers: { "X-Api-Key": API_KEY }
 };
 
-/* ========= 🎵 MÚSICA (3 CANCIONES FUNCIONANDO) ========= */
+/* ========= 🎵 MÚSICA (FUNCIONA SÍ O SÍ) ========= */
 const music = document.getElementById("music-player");
 const toggleMusic = document.getElementById("music-toggle");
 const volumeControl = document.getElementById("music-volume");
 
-if (music && toggleMusic && volumeControl) {
-  const songs = [
-    "https://arlos2812.github.io/pokecards-assets/sounds/song1.mp3",
-    "https://arlos2812.github.io/pokecards-assets/sounds/song2.mp3",
-    "https://arlos2812.github.io/pokecards-assets/sounds/song3.mp3"
-  ];
+const songs = [
+  "https://arlos2812.github.io/pokecards-assets/sounds/song1.mp3",
+  "https://arlos2812.github.io/pokecards-assets/sounds/song2.mp3",
+  "https://arlos2812.github.io/pokecards-assets/sounds/song3.mp3"
+];
 
-  let currentSong = 0;
-  let isPlaying = false;
+let currentSong = 0;
+let isPlaying = false;
 
-  music.preload = "auto";
-  music.src = songs[currentSong];
-  music.volume = volumeControl.value;
+music.preload = "auto";
+music.src = songs[currentSong];
+music.volume = volumeControl.value;
 
-  toggleMusic.addEventListener("click", async () => {
-    try {
-      if (!isPlaying) {
-        await music.play();
-        isPlaying = true;
-        toggleMusic.textContent = "⏸️ Música";
-      } else {
-        music.pause();
-        isPlaying = false;
-        toggleMusic.textContent = "▶️ Música";
-      }
-    } catch (e) {
-      console.warn("Audio bloqueado por el navegador", e);
+toggleMusic.addEventListener("click", async () => {
+  try {
+    if (!isPlaying) {
+      await music.play();
+      isPlaying = true;
+      toggleMusic.textContent = "⏸️ Música";
+    } else {
+      music.pause();
+      isPlaying = false;
+      toggleMusic.textContent = "▶️ Música";
     }
-  });
+  } catch (e) {
+    console.warn("Audio bloqueado:", e);
+  }
+});
 
-  volumeControl.addEventListener("input", () => {
-    music.volume = volumeControl.value;
-  });
+volumeControl.addEventListener("input", () => {
+  music.volume = volumeControl.value;
+});
 
-  music.addEventListener("ended", () => {
-    currentSong = (currentSong + 1) % songs.length;
-    music.src = songs[currentSong];
-    music.play().catch(() => {});
-  });
-}
+music.addEventListener("ended", () => {
+  currentSong = (currentSong + 1) % songs.length;
+  music.src = songs[currentSong];
+  music.play().catch(() => {});
+});
 
 /* ========= LOADER ========= */
 const loader = document.getElementById("global-loading");
@@ -154,12 +154,6 @@ function openCard(card) {
   cardsScreen.classList.add("hidden");
   cardScreen.classList.remove("hidden");
 
-  const priceChartingUrl =
-    "https://www.pricecharting.com/search-products?type=prices&q=" +
-    encodeURIComponent(card.name + " " + card.set.name);
-
-  const cardmarketUrl = card.cardmarket?.url;
-
   cardDetail.innerHTML = `
     <button id="back-to-cards">⬅ Volver</button>
     <img src="${card.images.large}">
@@ -167,18 +161,6 @@ function openCard(card) {
     <p><b>Set:</b> ${card.set.name}</p>
     <p><b>Fecha:</b> ${card.set.releaseDate || "—"}</p>
     <p><b>Número:</b> ${card.number} / ${card.set.printedTotal}</p>
-    <p><b>Rareza:</b> ${card.rarity || "—"}</p>
-
-    <div style="margin-top:16px">
-      <a href="${priceChartingUrl}" target="_blank">
-        <button>PriceCharting</button>
-      </a>
-      ${cardmarketUrl ? `
-        <a href="${cardmarketUrl}" target="_blank">
-          <button>Cardmarket</button>
-        </a>
-      ` : ""}
-    </div>
   `;
 
   document.getElementById("back-to-cards").onclick = () => {
@@ -195,3 +177,5 @@ document.getElementById("back-to-sets").onclick = () => {
 
 /* INIT */
 loadSets();
+
+});
