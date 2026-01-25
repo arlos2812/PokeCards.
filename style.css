@@ -4,7 +4,7 @@
   font-display: swap;
 }
 
-/* RESET */
+/* ===== RESET ===== */
 * {
   box-sizing: border-box;
   font-family: Pokemon, sans-serif;
@@ -31,7 +31,6 @@ header {
 
 .logo img {
   height: 56px;
-  width: auto;
 }
 
 .app-name {
@@ -56,10 +55,11 @@ button {
   cursor: pointer;
 }
 
-/* ===== TITULOS ===== */
+/* ===== 🔥 TITULOS FORZADOS ===== */
 h2 {
-  text-align: center; /* 🔥 ESTO CENTRA “EXPANSIONES” */
-  margin: 10px 0;
+  text-align: center !important;
+  width: 100%;
+  margin: 12px 0;
 }
 
 /* ===== TOPBAR CARTAS ===== */
