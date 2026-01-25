@@ -1,13 +1,12 @@
 @font-face {
-  font-family: Pokemon;
-  src: url("fonts/PokemonSolid.ttf") format("truetype");
+  font-family: 'Pokemon';
+  src: url('fonts/PokemonSolid.ttf') format('truetype');
   font-display: swap;
 }
 
-/* RESET */
 * {
+  font-family: 'Pokemon', sans-serif;
   box-sizing: border-box;
-  font-family: Pokemon, sans-serif;
 }
 
 body {
@@ -23,77 +22,67 @@ header {
 }
 
 .logo {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 12px;
-}
-
-.logo img {
-  height: 56px;
-}
-
-.app-name {
-  font-size: 28px;
+  font-size: 36px;
   color: #ffcb05;
   -webkit-text-stroke: 2px #2a75bb;
 }
 
-/* BOTONES */
-button {
-  background: #ffcb05;
-  color: #2a75bb;
-  border: none;
-  border-radius: 16px;
-  padding: 12px 22px;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-/* 🔥 TITULOS CENTRADOS (EXPANSIONES Y SET) */
-#sets-screen h2,
-#set-title {
-  text-align: center;
-  width: 100%;
-  margin: 12px 0;
-}
-
-/* TOPBAR CARTAS */
-.cards-topbar {
+/* MUSIC */
+.music-bar {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 16px;
+  justify-content: center;
+  gap: 10px;
 }
 
-.cards-topbar select {
-  margin-left: auto;
-  padding: 8px 12px;
-  border-radius: 10px;
+/* TITLES */
+.section-title {
+  text-align: center;
+  font-size: 28px;
+  margin: 20px 0;
 }
 
-/* GRID GENERAL */
+/* GRID */
 .grid {
   display: grid;
-  gap: 16px;
-  padding: 16px;
-  max-width: 1200px;
-  margin: 0 auto;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 18px;
+  padding: 20px;
 }
 
-/* EXPANSIONES */
-#sets {
-  grid-template-columns: repeat(auto-fit, minmax(160px, 200px));
-  justify-content: center;
+/* SETS */
+.set-card {
+  background: #1c1c1c;
+  border-radius: 14px;
+  padding: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform .2s ease;
 }
 
-/* CARTAS */
-#cards {
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+.set-card:hover {
+  transform: scale(1.05);
 }
 
-/* TARJETAS */
-.set-card,
+.set-card img {
+  width: 100%;
+  border-radius: 8px;
+}
+
+.set-card h3 {
+  margin: 10px 0 4px;
+  font-size: 18px;
+}
+
+/* 📅 FECHA DE EXPANSIÓN (CLAVE) */
+.set-date {
+  display: block;
+  font-size: 14px;
+  color: #cccccc;
+  opacity: 0.9;
+  margin-top: 4px;
+}
+
+/* CARDS */
 .card {
   background: #1c1c1c;
   border-radius: 14px;
@@ -102,77 +91,60 @@ button {
   cursor: pointer;
 }
 
-.set-card img,
 .card img {
   width: 100%;
-  height: auto;
-  display: block;
+  border-radius: 8px;
 }
 
+/* 💚 PRECIO */
 .price {
   color: #00ff66;
   margin: 6px 0;
 }
 
-/* CARTA ABIERTA */
+/* LOAD MORE */
+.load-more {
+  display: block;
+  margin: 20px auto;
+  padding: 12px 24px;
+  background: #ffcb05;
+  color: #2a75bb;
+  border: none;
+  border-radius: 12px;
+  font-size: 18px;
+}
+
+/* CARTA ABIERTA CENTRADA */
 #card-screen {
   display: flex;
   justify-content: center;
 }
 
 #card-detail {
+  text-align: center;
+  padding: 20px;
   max-width: 520px;
   width: 100%;
-  padding: 20px;
-  text-align: center;
 }
 
 #card-detail img {
   width: 100%;
-}
-
-/* CARGAR MAS */
-.load-more-wrapper {
-  display: flex;
-  justify-content: center;
-  padding: 24px 0;
+  max-width: 420px;
+  margin: 0 auto 15px;
+  display: block;
 }
 
 /* LOADER */
 .loading {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,.85);
+  background: rgba(0,0,0,.9);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 999;
 }
 
-.loader-box {
-  text-align: center;
-}
-
-.spinner {
-  width: 48px;
-  height: 48px;
-  border: 6px solid #444;
-  border-top: 6px solid #ffcb05;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: auto;
-}
-
-#loading-text {
-  margin-top: 12px;
-  font-size: 18px;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* UTIL */
 .hidden {
-  display: none !important;
+  display: none;
 }
