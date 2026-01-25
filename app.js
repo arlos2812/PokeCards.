@@ -1,4 +1,4 @@
-/* ===== LOADER TEXTO ===== */
+/* ===== LOADER ===== */
 const loader = document.getElementById("global-loading");
 const loadingText = document.getElementById("loading-text");
 
@@ -13,8 +13,10 @@ const cardDetail = document.getElementById("card-detail");
 
 const setTitle = document.getElementById("set-title");
 const filter = document.getElementById("filter");
+const loadMoreBtn = document.getElementById("load-more");
 
 let allCards = [];
+let visibleCount = 30;
 
 /* ===== FILTROS ===== */
 filter.innerHTML = `
@@ -60,31 +62,59 @@ async function openSet(id, name) {
 
   cardsDiv.innerHTML = "";
   allCards = [];
+  visibleCount = 30;
 
   const res = await fetch(`https://api.pokemontcg.io/v2/cards?q=set.id:${id}`);
   const data = await res.json();
 
-  data.data.forEach(card => {
-    allCards.push(card);
-    renderCard(card);
-  });
+  allCards = data.data;
+  renderCards();
 
   loader.classList.add("hidden");
 }
 
-function renderCard(card) {
-  const d = document.createElement("div");
-  d.className = "card";
-  d.innerHTML = `
-    <img src="${card.images.small}">
-    <div class="price">${
-      card.cardmarket?.prices?.averageSellPrice ?? "—"
-    } €</div>
-    <h4>${card.name}</h4>
-  `;
-  d.onclick = () => openCard(card);
-  cardsDiv.appendChild(d);
+/* ===== RENDER ===== */
+function renderCards() {
+  cardsDiv.innerHTML = "";
+
+  allCards.slice(0, visibleCount).forEach(card => {
+    const d = document.createElement("div");
+    d.className = "card";
+    d.innerHTML = `
+      <img src="${card.images.small}">
+      <div class="price">${card.cardmarket?.prices?.averageSellPrice ?? "—"} €</div>
+      <h4>${card.name}</h4>
+    `;
+    d.onclick = () => openCard(card);
+    cardsDiv.appendChild(d);
+  });
+
+  if (visibleCount < allCards.length) {
+    loadMoreBtn.classList.remove("hidden");
+  } else {
+    loadMoreBtn.classList.add("hidden");
+  }
 }
+
+/* ===== CARGAR MÁS ===== */
+loadMoreBtn.onclick = () => {
+  visibleCount += 30;
+  renderCards();
+};
+
+/* ===== FILTRAR ===== */
+filter.onchange = () => {
+  if (filter.value === "az") allCards.sort((a,b)=>a.name.localeCompare(b.name));
+  if (filter.value === "za") allCards.sort((a,b)=>b.name.localeCompare(a.name));
+  if (filter.value === "price-desc")
+    allCards.sort((a,b)=>(b.cardmarket?.prices?.averageSellPrice||0)-(a.cardmarket?.prices?.averageSellPrice||0));
+  if (filter.value === "price-asc")
+    allCards.sort((a,b)=>(a.cardmarket?.prices?.averageSellPrice||0)-(b.cardmarket?.prices?.averageSellPrice||0));
+  if (filter.value === "num")
+    allCards.sort((a,b)=>parseInt(a.number)-parseInt(b.number));
+
+  renderCards();
+};
 
 /* ===== CARTA ABIERTA ===== */
 function openCard(card) {
