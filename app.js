@@ -1,8 +1,8 @@
-/* ========= LOADER ========= */
+/* ===== LOADER ===== */
 const loader = document.getElementById("global-loading");
 const loadingText = document.getElementById("loading-text");
 
-/* ========= UI ========= */
+/* ===== UI ===== */
 const setsScreen = document.getElementById("sets-screen");
 const cardsScreen = document.getElementById("cards-screen");
 const cardScreen = document.getElementById("card-screen");
@@ -18,7 +18,7 @@ const loadMoreBtn = document.getElementById("load-more");
 let allCards = [];
 let visibleCount = 30;
 
-/* ========= FILTROS ========= */
+/* ===== FILTROS ===== */
 filter.innerHTML = `
   <option value="az">A–Z</option>
   <option value="za">Z–A</option>
@@ -27,7 +27,7 @@ filter.innerHTML = `
   <option value="num">Número</option>
 `;
 
-/* ========= EXPANSIONES ========= */
+/* ===== EXPANSIONES ===== */
 async function loadSets() {
   loader.classList.remove("hidden");
   loadingText.textContent = "Cargando expansiones…";
@@ -51,7 +51,7 @@ async function loadSets() {
   loader.classList.add("hidden");
 }
 
-/* ========= CARTAS ========= */
+/* ===== CARTAS ===== */
 async function openSet(id, name) {
   setTitle.textContent = name;
   setsScreen.classList.add("hidden");
@@ -73,7 +73,7 @@ async function openSet(id, name) {
   loader.classList.add("hidden");
 }
 
-/* ========= RENDER CARTAS ========= */
+/* ===== RENDER ===== */
 function renderCards() {
   cardsDiv.innerHTML = "";
 
@@ -82,9 +82,7 @@ function renderCards() {
     d.className = "card";
     d.innerHTML = `
       <img src="${card.images.small}">
-      <div class="price">${
-        card.cardmarket?.prices?.averageSellPrice ?? "—"
-      } €</div>
+      <div class="price">${card.cardmarket?.prices?.averageSellPrice ?? "—"} €</div>
       <h4>${card.name}</h4>
     `;
     d.onclick = () => openCard(card);
@@ -98,13 +96,13 @@ function renderCards() {
   }
 }
 
-/* ========= CARGAR MÁS ========= */
+/* ===== CARGAR MÁS ===== */
 loadMoreBtn.onclick = () => {
   visibleCount += 30;
   renderCards();
 };
 
-/* ========= FILTRAR ========= */
+/* ===== FILTRAR ===== */
 filter.onchange = () => {
   if (filter.value === "az") allCards.sort((a,b)=>a.name.localeCompare(b.name));
   if (filter.value === "za") allCards.sort((a,b)=>b.name.localeCompare(a.name));
@@ -118,7 +116,7 @@ filter.onchange = () => {
   renderCards();
 };
 
-/* ========= CARTA ABIERTA ========= */
+/* ===== CARTA ABIERTA ===== */
 function openCard(card) {
   cardsScreen.classList.add("hidden");
   cardScreen.classList.remove("hidden");
@@ -141,7 +139,7 @@ function openCard(card) {
   };
 }
 
-/* ========= VOLVER ========= */
+/* ===== VOLVER ===== */
 document.getElementById("back-to-sets").onclick = () => {
   cardsScreen.classList.add("hidden");
   setsScreen.classList.remove("hidden");
