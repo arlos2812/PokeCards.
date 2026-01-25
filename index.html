@@ -1,70 +1,242 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PokeCards</title>
-  <link rel="stylesheet" href="style.css">
-</head>
+document.addEventListener("DOMContentLoaded", () => {
 
-<body>
+/* ========= API CONFIG ========= */
+const API_KEY = "3d240d93-e6be-4c24-a9fc-c7b4593dd5fc";
+const API_HEADERS = {
+  headers: { "X-Api-Key": API_KEY }
+};
 
-<header>
-  <div class="logo">
-    <img src="icons/icon-192.png" alt="logo">
-    <span class="app-name">PokeCards</span>
-  </div>
+/* ========= 🎵 MÚSICA ========= */
+const music = document.getElementById("music-player");
+const toggleMusic = document.getElementById("music-toggle");
+const volumeControl = document.getElementById("music-volume");
 
-  <!-- 🎵 MÚSICA -->
-  <div class="music-bar">
-    <button id="music-toggle">▶️ Música</button>
-    <input
-      id="music-volume"
-      type="range"
-      min="0"
-      max="1"
-      step="0.01"
-      value="0.5"
-    >
-    <audio id="music-player"></audio>
-  </div>
-</header>
+const songs = [
+  "https://arlos2812.github.io/pokecards-assets/sounds/song1.mp3",
+  "https://arlos2812.github.io/pokecards-assets/sounds/song2.mp3",
+  "https://arlos2812.github.io/pokecards-assets/sounds/song3.mp3"
+];
 
-<!-- 🔄 LOADER -->
-<div id="global-loading" class="loading hidden">
-  <div class="loader-box">
-    <div class="spinner"></div>
-    <div id="loading-text">Cargando…</div>
-  </div>
-</div>
+let currentSong = 0;
+let isPlaying = false;
 
-<!-- EXPANSIONES -->
-<section id="sets-screen">
-  <h2>Expansiones</h2>
-  <div id="sets" class="grid"></div>
-</section>
+music.src = songs[currentSong];
+music.volume = volumeControl.value;
 
-<!-- CARTAS -->
-<section id="cards-screen" class="hidden">
-  <div class="cards-topbar">
-    <button id="back-to-sets">⬅ Volver</button>
-    <select id="filter"></select>
-  </div>
+toggleMusic.onclick = async () => {
+  if (!isPlaying) {
+    await music.play();
+    isPlaying = true;
+    toggleMusic.textContent = "⏸️ Música";
+  } else {
+    music.pause();
+    isPlaying = false;
+    toggleMusic.textContent = "▶️ Música";
+  }
+};
 
-  <h2 id="set-title"></h2>
+volumeControl.oninput = () => {
+  music.volume = volumeControl.value;
+};
 
-  <div id="cards" class="grid"></div>
+music.onended = () => {
+  currentSong = (currentSong + 1) % songs.length;
+  music.src = songs[currentSong];
+  music.play();
+};
 
-  <div class="load-more-wrapper">
-    <button id="load-more" class="hidden">⬇ Cargar 30 más</button>
-  </div>
-</section>
+/* ========= UI ========= */
+const loader = document.getElementById("global-loading");
+const loadingText = document.getElementById("loading-text");
 
-<!-- CARTA ABIERTA -->
-<section id="card-screen" class="hidden">
-  <div id="card-detail"></div>
-</section>
+const setsScreen = document.getElementById("sets-screen");
+const cardsScreen = document.getElementById("cards-screen");
+const cardScreen = document.getElementById("card-screen");
 
-<script src="app.js"></script>
-</body>
-</html>
+const setsDiv = document.getElementById("sets");
+const cardsDiv = document.getElementById("cards");
+const cardDetail = document.getElementById("card-detail");
+
+const setTitle = document.getElementById("set-title");
+const filter = document.getElementById("filter");
+const loadMoreBtn = document.getElementById("load-more");
+
+/* ========= ESTADO ========= */
+let currentSetId = null;
+let currentPage = 1;
+const pageSize = 30;
+let hasMore = true;
+let allCards = [];
+
+/* ========= FILTROS ========= */
+filter.innerHTML = `
+  <option value="az">A–Z</option>
+  <option value="za">Z–A</option>
+  <option value="num">Número</option>
+  <option value="price-desc">Precio: mayor → menor</option>
+  <option value="price-asc">Precio: menor → mayor</option>
+`;
+
+filter.onchange = applyFilter;
+
+/* ========= EXPANSIONES ========= */
+async function loadSets() {
+  loader.classList.remove("hidden");
+  loadingText.textContent = "Cargando expansiones (puede tardar en datos móviles)…";
+
+  try {
+    const res = await fetch("https://api.pokemontcg.io/v2/sets", API_HEADERS);
+    const data = await res.json();
+
+    const setsSorted = data.data.sort(
+      (a, b) => new Date(b.releaseDate) - new Date(a.releaseDate)
+    );
+
+    setsDiv.innerHTML = "";
+    setsSorted.forEach(set => {
+      const d = document.createElement("div");
+      d.className = "set-card";
+      d.innerHTML = `
+        <img src="${set.images.logo}" loading="lazy" decoding="async">
+        <h3>${set.name}</h3>
+        <div>${set.releaseDate || ""}</div>
+      `;
+      d.onclick = () => openSet(set.id, set.name);
+      setsDiv.appendChild(d);
+    });
+  } catch (e) {
+    loadingText.textContent = "Error cargando expansiones";
+  }
+
+  loader.classList.add("hidden");
+}
+
+/* ========= ABRIR EXPANSIÓN ========= */
+async function openSet(id, name) {
+  currentSetId = id;
+  currentPage = 1;
+  hasMore = true;
+  allCards = [];
+
+  setTitle.textContent = name;
+  setsScreen.classList.add("hidden");
+  cardsScreen.classList.remove("hidden");
+  cardsDiv.innerHTML = "";
+
+  await loadMoreCards();
+}
+
+/* ========= CARGAR CARTAS ========= */
+async function loadMoreCards() {
+  if (!hasMore) return;
+
+  loader.classList.remove("hidden");
+  loadingText.textContent = "Cargando cartas…";
+
+  const res = await fetch(
+    `https://api.pokemontcg.io/v2/cards?q=set.id:${currentSetId}&page=${currentPage}&pageSize=${pageSize}`,
+    API_HEADERS
+  );
+  const data = await res.json();
+
+  if (data.data.length < pageSize) hasMore = false;
+
+  allCards.push(...data.data);
+  currentPage++;
+
+  applyFilter();
+
+  loader.classList.add("hidden");
+  loadMoreBtn.classList.toggle("hidden", !hasMore);
+}
+
+/* ========= FILTRAR ========= */
+function applyFilter() {
+  let cards = [...allCards];
+
+  switch (filter.value) {
+    case "az":
+      cards.sort((a, b) => a.name.localeCompare(b.name));
+      break;
+    case "za":
+      cards.sort((a, b) => b.name.localeCompare(a.name));
+      break;
+    case "num":
+      cards.sort((a, b) => parseInt(a.number) - parseInt(b.number));
+      break;
+    case "price-desc":
+      cards.sort((a, b) =>
+        (b.cardmarket?.prices?.averageSellPrice || 0) -
+        (a.cardmarket?.prices?.averageSellPrice || 0)
+      );
+      break;
+    case "price-asc":
+      cards.sort((a, b) =>
+        (a.cardmarket?.prices?.averageSellPrice || 0) -
+        (b.cardmarket?.prices?.averageSellPrice || 0)
+      );
+      break;
+  }
+
+  renderCards(cards);
+}
+
+/* ========= PINTAR CARTAS ========= */
+function renderCards(cards) {
+  cardsDiv.innerHTML = "";
+  cards.forEach(card => {
+    const d = document.createElement("div");
+    d.className = "card";
+    d.innerHTML = `
+      <img src="${card.images.small}" loading="lazy">
+      <div class="price">${card.cardmarket?.prices?.averageSellPrice ?? "—"} €</div>
+      <h4>${card.name}</h4>
+    `;
+    d.onclick = () => openCard(card);
+    cardsDiv.appendChild(d);
+  });
+}
+
+/* ========= CARTA ABIERTA ========= */
+function openCard(card) {
+  cardsScreen.classList.add("hidden");
+  cardScreen.classList.remove("hidden");
+
+  const priceChartingUrl =
+    "https://www.pricecharting.com/search-products?type=prices&q=" +
+    encodeURIComponent(card.name + " " + card.set.name);
+
+  cardDetail.innerHTML = `
+    <button id="back-to-cards">⬅ Volver</button>
+    <img src="${card.images.large}">
+    <h2>${card.name}</h2>
+    <p><b>Set:</b> ${card.set.name}</p>
+    <p><b>Fecha:</b> ${card.set.releaseDate || "—"}</p>
+    <p><b>Número:</b> ${card.number}</p>
+
+    <a href="${priceChartingUrl}" target="_blank">
+      <button>PriceCharting</button>
+    </a>
+    ${card.cardmarket?.url ? `
+      <a href="${card.cardmarket.url}" target="_blank">
+        <button>Cardmarket</button>
+      </a>
+    ` : ""}
+  `;
+
+  document.getElementById("back-to-cards").onclick = () => {
+    cardScreen.classList.add("hidden");
+    cardsScreen.classList.remove("hidden");
+  };
+}
+
+/* ========= VOLVER ========= */
+document.getElementById("back-to-sets").onclick = () => {
+  cardsScreen.classList.add("hidden");
+  setsScreen.classList.remove("hidden");
+};
+
+/* INIT */
+loadSets();
+
+});
