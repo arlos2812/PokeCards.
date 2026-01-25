@@ -21,16 +21,24 @@ header {
   padding: 15px;
 }
 
+/* 🔥 LOGO CON IMAGEN */
 .logo {
-  font-size: 36px;
-  color: #ffcb05;
-  -webkit-text-stroke: 2px #2a75bb;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
+.logo img {
+  height: 64px; /* cambia a 80px si lo quieres más grande */
+  width: auto;
+}
+
+/* MUSIC */
 .music-bar {
   margin-top: 10px;
 }
 
+/* BUTTONS */
 button {
   background: #ffcb05;
   color: #2a75bb;
@@ -38,22 +46,26 @@ button {
   border-radius: 12px;
   padding: 10px 18px;
   cursor: pointer;
+  margin: 5px;
 }
 
+/* TITLES */
 h2 {
   text-align: center;
 }
 
-/* 🔥 TOPBAR CARTAS */
+/* TOPBAR CARTAS */
 .cards-topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 10px 16px;
+  gap: 12px;
 }
 
 .cards-topbar select {
-  padding: 8px;
+  margin-left: auto;
+  padding: 8px 12px;
   border-radius: 10px;
 }
 
@@ -72,6 +84,10 @@ h2 {
   padding: 12px;
   text-align: center;
   cursor: pointer;
+}
+
+.set-card img {
+  width: 100%;
 }
 
 .set-date {
@@ -135,9 +151,12 @@ h2 {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .hidden {
   display: none !important;
+  pointer-events: none !important;
 }
