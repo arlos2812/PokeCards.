@@ -1,12 +1,50 @@
 const API_KEY = "3d240d93-e6be-4c24-a9fc-c7b4593dd5fc";
 
 /* =========================
-   FETCH CON TIMEOUT
+   MUSICA
+========================= */
+const music = document.getElementById("music-player");
+const toggleBtn = document.getElementById("music-toggle");
+const volume = document.getElementById("music-volume");
+
+const tracks = [
+  "music/song1.mp3",
+  "music/song2.mp3",
+  "music/song3.mp3"
+];
+
+let currentTrack = 0;
+let playing = false;
+
+music.src = tracks[currentTrack];
+music.loop = true;
+music.volume = volume.value;
+
+toggleBtn.onclick = () => {
+  if (!playing) {
+    music.play();
+    toggleBtn.textContent = "⏸ Pausar";
+  } else {
+    music.pause();
+    toggleBtn.textContent = "▶ Música";
+  }
+  playing = !playing;
+};
+
+volume.oninput = () => music.volume = volume.value;
+
+music.onended = () => {
+  currentTrack = (currentTrack + 1) % tracks.length;
+  music.src = tracks[currentTrack];
+  music.play();
+};
+
+/* =========================
+   FETCH
 ========================= */
 function fetchWithTimeout(url, options = {}, timeout = 8000) {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeout);
-
   return fetch(url, { ...options, signal: controller.signal })
     .finally(() => clearTimeout(id));
 }
@@ -16,7 +54,7 @@ function fetchWithTimeout(url, options = {}, timeout = 8000) {
 ========================= */
 let currentSetId = null;
 let page = 1;
-let pageSize = 20;
+const pageSize = 30;
 let finished = false;
 
 /* =========================
@@ -35,7 +73,7 @@ const loadMoreBtn = document.getElementById("load-more");
 const loader = document.getElementById("global-loading");
 
 /* =========================
-   CARGAR EXPANSIONES
+   EXPANSIONES
 ========================= */
 async function loadSets() {
   try {
@@ -46,28 +84,22 @@ async function loadSets() {
       { headers: { "X-Api-Key": API_KEY } }
     );
 
-    if (!res.ok) throw new Error("Error API");
-
     const { data } = await res.json();
-
     setsContainer.innerHTML = "";
 
-    data
-      .sort((a, b) => new Date(b.releaseDate) - new Date(a.releaseDate))
-      .forEach(set => {
-        const div = document.createElement("div");
-        div.className = "set-card";
-        div.innerHTML = `
-          <img src="${set.images.logo}" loading="lazy">
-          <h3>${set.name}</h3>
-          <div class="set-date">${set.releaseDate || ""}</div>
-        `;
-        div.onclick = () => openSet(set.id, set.name);
-        setsContainer.appendChild(div);
-      });
+    data.forEach(set => {
+      const d = document.createElement("div");
+      d.className = "set-card";
+      d.innerHTML = `
+        <img src="${set.images.logo}" loading="lazy">
+        <h3>${set.name}</h3>
+        <div class="set-date">${set.releaseDate || ""}</div>
+      `;
+      d.onclick = () => openSet(set.id, set.name);
+      setsContainer.appendChild(d);
+    });
 
-  } catch (e) {
-    console.error(e);
+  } catch {
     setsContainer.innerHTML = "<p>Error cargando expansiones</p>";
   } finally {
     loader.classList.add("hidden");
@@ -75,7 +107,7 @@ async function loadSets() {
 }
 
 /* =========================
-   ABRIR EXPANSIÓN
+   ABRIR EXPANSION
 ========================= */
 function openSet(id, name) {
   currentSetId = id;
@@ -87,13 +119,12 @@ function openSet(id, name) {
   setsScreen.classList.add("hidden");
   cardsScreen.classList.remove("hidden");
   cardScreen.classList.add("hidden");
-  loadMoreBtn.classList.remove("hidden");
 
   loadNextPage();
 }
 
 /* =========================
-   CARGAR CARTAS
+   CARTAS (30 + BOTON)
 ========================= */
 async function loadNextPage() {
   if (finished) return;
@@ -106,21 +137,17 @@ async function loadNextPage() {
       { headers: { "X-Api-Key": API_KEY } }
     );
 
-    if (!res.ok) throw new Error("Error cartas");
-
     const { data } = await res.json();
 
     if (!data.length) {
       finished = true;
-      loadMoreBtn.classList.add("hidden");
+      loadMoreBtn.style.display = "none";
       return;
     }
 
     data.forEach(renderCard);
     page++;
 
-  } catch (e) {
-    console.error(e);
   } finally {
     loader.classList.add("hidden");
   }
@@ -130,16 +157,10 @@ async function loadNextPage() {
    RENDER CARTA
 ========================= */
 function renderCard(card) {
-  const price =
-    card.cardmarket?.prices?.averageSellPrice != null
-      ? card.cardmarket.prices.averageSellPrice.toFixed(2) + " €"
-      : "—";
-
   const div = document.createElement("div");
   div.className = "card";
   div.innerHTML = `
     <img src="${card.images.small}" loading="lazy">
-    <div class="price">${price}</div>
     <h4>${card.name}</h4>
   `;
   div.onclick = () => openCard(card);
@@ -147,21 +168,23 @@ function renderCard(card) {
 }
 
 /* =========================
-   CARTA ABIERTA
+   DETALLE CARTA
 ========================= */
 function openCard(card) {
   cardsScreen.classList.add("hidden");
   cardScreen.classList.remove("hidden");
 
   cardDetail.innerHTML = `
-    <button class="load-more" onclick="goBack()">⬅ Volver</button>
+    <button class="load-more" onclick="closeCard()">⬅ Salir</button>
     <img src="${card.images.large}">
     <h2>${card.name}</h2>
-    <p>${card.set.name} · #${card.number}</p>
+    <p><strong>Expansión:</strong> ${card.set.name}</p>
+    <p><strong>Número:</strong> ${card.number}</p>
+    <p><strong>Rareza:</strong> ${card.rarity || "—"}</p>
   `;
 }
 
-function goBack() {
+function closeCard() {
   cardScreen.classList.add("hidden");
   cardsScreen.classList.remove("hidden");
 }
@@ -170,6 +193,7 @@ function goBack() {
    BOTONES
 ========================= */
 loadMoreBtn.onclick = loadNextPage;
+
 document.getElementById("back-to-sets").onclick = () => {
   cardsScreen.classList.add("hidden");
   setsScreen.classList.remove("hidden");
