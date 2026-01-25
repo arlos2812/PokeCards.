@@ -6,7 +6,7 @@ const API_HEADERS = {
   headers: { "X-Api-Key": API_KEY }
 };
 
-/* ========= 🎵 MÚSICA (FUNCIONA SÍ O SÍ) ========= */
+/* ========= 🎵 MÚSICA (3 CANCIONES FUNCIONANDO) ========= */
 const music = document.getElementById("music-player");
 const toggleMusic = document.getElementById("music-toggle");
 const volumeControl = document.getElementById("music-volume");
@@ -154,6 +154,12 @@ function openCard(card) {
   cardsScreen.classList.add("hidden");
   cardScreen.classList.remove("hidden");
 
+  const priceChartingUrl =
+    "https://www.pricecharting.com/search-products?type=prices&q=" +
+    encodeURIComponent(card.name + " " + card.set.name);
+
+  const cardmarketUrl = card.cardmarket?.url;
+
   cardDetail.innerHTML = `
     <button id="back-to-cards">⬅ Volver</button>
     <img src="${card.images.large}">
@@ -161,6 +167,17 @@ function openCard(card) {
     <p><b>Set:</b> ${card.set.name}</p>
     <p><b>Fecha:</b> ${card.set.releaseDate || "—"}</p>
     <p><b>Número:</b> ${card.number} / ${card.set.printedTotal}</p>
+
+    <div style="margin-top:16px">
+      <a href="${priceChartingUrl}" target="_blank">
+        <button>PriceCharting</button>
+      </a>
+      ${cardmarketUrl ? `
+        <a href="${cardmarketUrl}" target="_blank">
+          <button>Cardmarket</button>
+        </a>
+      ` : ""}
+    </div>
   `;
 
   document.getElementById("back-to-cards").onclick = () => {
