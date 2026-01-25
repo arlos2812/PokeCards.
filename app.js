@@ -7,6 +7,12 @@ const loader = document.getElementById("global-loading");
 const loadingText = document.getElementById("loading-text");
 const setsDiv = document.getElementById("sets");
 
+/* ===== TEMPORIZADOR DE SEGURIDAD ===== */
+let safetyTimeout = setTimeout(() => {
+  loadingText.textContent = "La carga está tardando demasiado 😕";
+  loader.classList.add("hidden");
+}, 20000); // 20 segundos
+
 async function loadSets() {
   loader.classList.remove("hidden");
   loadingText.textContent = "Cargando expansiones…";
@@ -15,9 +21,13 @@ async function loadSets() {
     const res = await fetch("https://api.pokemontcg.io/v2/sets", API_HEADERS);
     const data = await res.json();
 
+    if (!data || !Array.isArray(data.data)) {
+      throw new Error("Respuesta inválida");
+    }
+
     const sets = data.data
-      .sort((a,b)=>new Date(b.releaseDate)-new Date(a.releaseDate))
-      .slice(0,30);
+      .sort((a, b) => new Date(b.releaseDate) - new Date(a.releaseDate))
+      .slice(0, 30);
 
     setsDiv.innerHTML = "";
 
@@ -32,9 +42,10 @@ async function loadSets() {
       setsDiv.appendChild(d);
     });
 
-  } catch {
-    loadingText.textContent = "Error cargando expansiones";
+  } catch (e) {
+    loadingText.textContent = "No se pudieron cargar las expansiones 😕";
   } finally {
+    clearTimeout(safetyTimeout);
     loader.classList.add("hidden");
   }
 }
