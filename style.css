@@ -21,7 +21,6 @@ header {
   padding: 15px;
 }
 
-/* 🔥 LOGO CON IMAGEN */
 .logo {
   display: flex;
   justify-content: center;
@@ -29,7 +28,7 @@ header {
 }
 
 .logo img {
-  height: 64px; /* cambia a 80px si lo quieres más grande */
+  height: 64px;
   width: auto;
 }
 
@@ -49,18 +48,16 @@ button {
   margin: 5px;
 }
 
-/* TITLES */
 h2 {
   text-align: center;
 }
 
-/* TOPBAR CARTAS */
+/* TOPBAR */
 .cards-topbar {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 10px 16px;
   gap: 12px;
+  padding: 10px 16px;
 }
 
 .cards-topbar select {
@@ -90,11 +87,6 @@ h2 {
   width: 100%;
 }
 
-.set-date {
-  font-size: 14px;
-  opacity: 0.8;
-}
-
 /* CARDS */
 .card {
   background: #1c1c1c;
@@ -110,6 +102,7 @@ h2 {
 
 .price {
   color: #00ff66;
+  margin: 5px 0;
 }
 
 /* CARD DETAIL */
@@ -127,6 +120,13 @@ h2 {
 
 #card-detail img {
   width: 100%;
+}
+
+/* FIX IMÁGENES */
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
 }
 
 /* LOADER */
@@ -151,9 +151,7 @@ h2 {
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
 .hidden {
