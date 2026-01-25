@@ -82,23 +82,31 @@ filter.onchange = applyFilter;
 /* ========= EXPANSIONES ========= */
 async function loadSets() {
   loader.classList.remove("hidden");
-  loadingText.textContent = "Cargando expansiones…";
+  loadingText.textContent = "Cargando expansiones (puede tardar en datos móviles)…";
 
-  const res = await fetch("https://api.pokemontcg.io/v2/sets", API_HEADERS);
-  const data = await res.json();
+  try {
+    const res = await fetch("https://api.pokemontcg.io/v2/sets", API_HEADERS);
+    const data = await res.json();
 
-  setsDiv.innerHTML = "";
-  data.data.forEach(set => {
-    const d = document.createElement("div");
-    d.className = "set-card";
-    d.innerHTML = `
-      <img src="${set.images.logo}" loading="lazy">
-      <h3>${set.name}</h3>
-      <div>${set.releaseDate || ""}</div>
-    `;
-    d.onclick = () => openSet(set.id, set.name);
-    setsDiv.appendChild(d);
-  });
+    const setsSorted = data.data.sort(
+      (a, b) => new Date(b.releaseDate) - new Date(a.releaseDate)
+    );
+
+    setsDiv.innerHTML = "";
+    setsSorted.forEach(set => {
+      const d = document.createElement("div");
+      d.className = "set-card";
+      d.innerHTML = `
+        <img src="${set.images.logo}" loading="lazy" decoding="async">
+        <h3>${set.name}</h3>
+        <div>${set.releaseDate || ""}</div>
+      `;
+      d.onclick = () => openSet(set.id, set.name);
+      setsDiv.appendChild(d);
+    });
+  } catch (e) {
+    loadingText.textContent = "Error cargando expansiones";
+  }
 
   loader.classList.add("hidden");
 }
@@ -142,7 +150,7 @@ async function loadMoreCards() {
   loadMoreBtn.classList.toggle("hidden", !hasMore);
 }
 
-/* ========= APLICAR FILTRO ========= */
+/* ========= FILTRAR ========= */
 function applyFilter() {
   let cards = [...allCards];
 
@@ -206,16 +214,14 @@ function openCard(card) {
     <p><b>Fecha:</b> ${card.set.releaseDate || "—"}</p>
     <p><b>Número:</b> ${card.number}</p>
 
-    <div>
-      <a href="${priceChartingUrl}" target="_blank">
-        <button>PriceCharting</button>
+    <a href="${priceChartingUrl}" target="_blank">
+      <button>PriceCharting</button>
+    </a>
+    ${card.cardmarket?.url ? `
+      <a href="${card.cardmarket.url}" target="_blank">
+        <button>Cardmarket</button>
       </a>
-      ${card.cardmarket?.url ? `
-        <a href="${card.cardmarket.url}" target="_blank">
-          <button>Cardmarket</button>
-        </a>
-      ` : ""}
-    </div>
+    ` : ""}
   `;
 
   document.getElementById("back-to-cards").onclick = () => {
