@@ -1,60 +1,172 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PokeCards</title>
-  <link rel="stylesheet" href="style.css">
-</head>
+@font-face {
+  font-family: Pokemon;
+  src: url("fonts/PokemonSolid.ttf") format("truetype");
+  font-display: swap;
+}
 
-<body>
+/* RESET */
+* {
+  box-sizing: border-box;
+  font-family: Pokemon, sans-serif;
+}
 
-<header>
-  <div class="logo">
-    <img src="icons/icon-192.png" alt="logo">
-    <span class="app-name">PokeCards</span>
-  </div>
+body {
+  margin: 0;
+  background: #0b0b0b;
+  color: white;
+}
 
-  <div class="music-bar">
-    <button id="music-toggle">▶️ Música</button>
-    <input id="music-volume" type="range" min="0" max="1" step="0.01" value="0.5">
-    <audio id="music-player"></audio>
-  </div>
-</header>
+/* ===== HEADER ===== */
+header {
+  text-align: center;
+  padding: 15px;
+}
 
-<!-- LOADER -->
-<div id="global-loading" class="loading hidden">
-  <div class="loader-box">
-    <div class="spinner"></div>
-    <p id="loading-text">Cargando…</p>
-  </div>
-</div>
+.logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
 
-<section id="sets-screen">
-  <h2>Expansiones</h2>
-  <div id="sets" class="grid"></div>
-</section>
+.logo img {
+  height: 56px;
+  width: auto;
+}
 
-<section id="cards-screen" class="hidden">
-  <div class="cards-topbar">
-    <button id="back-to-sets">⬅ Volver</button>
-    <select id="filter"></select>
-  </div>
+.app-name {
+  font-size: 28px;
+  color: #ffcb05;
+  -webkit-text-stroke: 2px #2a75bb;
+}
 
-  <h2 id="set-title"></h2>
+/* ===== MUSIC ===== */
+.music-bar {
+  margin-top: 10px;
+}
 
-  <div id="cards" class="grid"></div>
+/* ===== BUTTONS ===== */
+button {
+  background: #ffcb05;
+  color: #2a75bb;
+  border: none;
+  border-radius: 16px;
+  padding: 12px 22px;
+  font-size: 16px;
+  cursor: pointer;
+}
 
-  <!-- 🔥 BOTÓN CARGAR MÁS -->
-  <div class="load-more-wrapper">
-    <button id="load-more" class="hidden">⬇ Cargar más cartas</button>
-  </div>
-</section>
+/* ===== TOPBAR ===== */
+.cards-topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+}
 
-<section id="card-screen" class="hidden">
-  <div id="card-detail"></div>
-</section>
+.cards-topbar select {
+  margin-left: auto;
+  padding: 8px 12px;
+  border-radius: 10px;
+}
 
-<script src="app.js"></script>
-</body>
-</html>
+/* ===== GRID ===== */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+  padding: 16px;
+}
+
+/* ===== SETS & CARDS ===== */
+.set-card,
+.card {
+  background: #1c1c1c;
+  border-radius: 14px;
+  padding: 12px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.set-card img,
+.card img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.price {
+  color: #00ff66;
+  margin: 6px 0;
+}
+
+/* ===== CARD DETAIL ===== */
+#card-screen {
+  display: flex;
+  justify-content: center;
+}
+
+#card-detail {
+  max-width: 520px;
+  width: 100%;
+  padding: 20px;
+  text-align: center;
+}
+
+#card-detail img {
+  width: 100%;
+}
+
+/* ===== LOAD MORE ===== */
+.load-more-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 24px 0;
+}
+
+#load-more {
+  font-size: 18px;
+}
+
+/* ===== LOADER ===== */
+.loading {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.loader-box {
+  text-align: center;
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 6px solid #444;
+  border-top: 6px solid #ffcb05;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: auto;
+}
+
+#loading-text {
+  margin-top: 12px;
+  font-size: 18px;
+}
+
+/* ===== ANIM ===== */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===== UTIL ===== */
+.hidden {
+  display: none !important;
+  pointer-events: none !important;
+}
