@@ -13,8 +13,8 @@ const tracks = [
   "music/song3.mp3"
 ];
 
-let currentTrack = 0;
 let playing = false;
+let currentTrack = 0;
 
 music.src = tracks[currentTrack];
 music.loop = true;
@@ -33,16 +33,10 @@ toggleBtn.onclick = () => {
 
 volume.oninput = () => music.volume = volume.value;
 
-music.onended = () => {
-  currentTrack = (currentTrack + 1) % tracks.length;
-  music.src = tracks[currentTrack];
-  music.play();
-};
-
 /* =========================
-   FETCH
+   FETCH CON TIMEOUT
 ========================= */
-function fetchWithTimeout(url, options = {}, timeout = 8000) {
+function fetchWithTimeout(url, options = {}, timeout = 10000) {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeout);
   return fetch(url, { ...options, signal: controller.signal })
@@ -73,7 +67,7 @@ const loadMoreBtn = document.getElementById("load-more");
 const loader = document.getElementById("global-loading");
 
 /* =========================
-   EXPANSIONES
+   CARGAR EXPANSIONES
 ========================= */
 async function loadSets() {
   try {
@@ -84,23 +78,34 @@ async function loadSets() {
       { headers: { "X-Api-Key": API_KEY } }
     );
 
-    const { data } = await res.json();
+    if (!res.ok) throw new Error("API error");
+
+    const json = await res.json();
+    if (!json.data) throw new Error("Datos inválidos");
+
     setsContainer.innerHTML = "";
 
-    data.forEach(set => {
-      const d = document.createElement("div");
-      d.className = "set-card";
-      d.innerHTML = `
-        <img src="${set.images.logo}" loading="lazy">
-        <h3>${set.name}</h3>
-        <div class="set-date">${set.releaseDate || ""}</div>
-      `;
-      d.onclick = () => openSet(set.id, set.name);
-      setsContainer.appendChild(d);
-    });
+    json.data
+      .sort((a, b) => new Date(b.releaseDate) - new Date(a.releaseDate))
+      .forEach(set => {
+        const div = document.createElement("div");
+        div.className = "set-card";
+        div.innerHTML = `
+          <img src="${set.images.logo}" loading="lazy">
+          <h3>${set.name}</h3>
+          <div class="set-date">${set.releaseDate || ""}</div>
+        `;
+        div.onclick = () => openSet(set.id, set.name);
+        setsContainer.appendChild(div);
+      });
 
-  } catch {
-    setsContainer.innerHTML = "<p>Error cargando expansiones</p>";
+  } catch (e) {
+    console.error(e);
+    setsContainer.innerHTML = `
+      <p style="text-align:center;color:#ff6b6b">
+        ❌ Error cargando expansiones<br>
+        Revisa tu conexión
+      </p>`;
   } finally {
     loader.classList.add("hidden");
   }
@@ -120,11 +125,12 @@ function openSet(id, name) {
   cardsScreen.classList.remove("hidden");
   cardScreen.classList.add("hidden");
 
+  loadMoreBtn.style.display = "block";
   loadNextPage();
 }
 
 /* =========================
-   CARTAS (30 + BOTON)
+   CARGAR CARTAS (30)
 ========================= */
 async function loadNextPage() {
   if (finished) return;
@@ -137,17 +143,21 @@ async function loadNextPage() {
       { headers: { "X-Api-Key": API_KEY } }
     );
 
-    const { data } = await res.json();
+    if (!res.ok) throw new Error("Error cartas");
 
-    if (!data.length) {
+    const json = await res.json();
+
+    if (!json.data.length) {
       finished = true;
       loadMoreBtn.style.display = "none";
       return;
     }
 
-    data.forEach(renderCard);
+    json.data.forEach(renderCard);
     page++;
 
+  } catch (e) {
+    console.error(e);
   } finally {
     loader.classList.add("hidden");
   }
