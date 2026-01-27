@@ -1,7 +1,45 @@
 document.addEventListener("DOMContentLoaded", () => {
 
 const API_KEY = "3d240d93-e6be-4c24-a9fc-c7b4593dd5fc";
-const PAGE_SIZE = 40;
+
+/* =========================
+   🎵 MÚSICA
+========================= */
+const playlist = [
+  "sounds/song1.mp3",
+  "sounds/song2.mp3",
+  "sounds/song3.mp3"
+];
+
+const music = document.getElementById("music-player");
+const musicToggle = document.getElementById("music-toggle");
+const volume = document.getElementById("music-volume");
+
+let songIndex = 0;
+let playing = false;
+
+music.volume = volume.value;
+
+musicToggle.onclick = () => {
+  if (!playing) {
+    music.src = playlist[songIndex];
+    music.play();
+    playing = true;
+    musicToggle.textContent = "⏸️ Música";
+  } else {
+    music.pause();
+    playing = false;
+    musicToggle.textContent = "▶️ Música";
+  }
+};
+
+volume.oninput = () => (music.volume = volume.value);
+
+music.onended = () => {
+  songIndex = (songIndex + 1) % playlist.length;
+  music.src = playlist[songIndex];
+  music.play();
+};
 
 /* =========================
    UI
@@ -13,7 +51,6 @@ const cardScreen = document.getElementById("card-screen");
 const setsContainer = document.getElementById("sets");
 const cardsContainer = document.getElementById("cards");
 const cardDetail = document.getElementById("card-detail");
-const loadMoreBtn = document.getElementById("load-more");
 
 const setTitle = document.getElementById("set-title");
 const backToSets = document.getElementById("back-to-sets");
@@ -26,12 +63,10 @@ const loader = document.getElementById("global-loading");
 const loadingText = document.getElementById("loading-text");
 
 /* =========================
-   ESTADO + CACHE
+   ESTADO
 ========================= */
-let cacheSets = {};
 let currentSetId = null;
-let currentPage = 1;
-let finished = false;
+let allCards = [];
 
 /* =========================
    EXPANSIONES
@@ -46,12 +81,14 @@ async function loadSets() {
   const data = await res.json();
 
   setsContainer.innerHTML = "";
+
   data.data.forEach(set => {
     const d = document.createElement("div");
     d.className = "set-card";
     d.innerHTML = `
-      <img src="${set.images.logo}" loading="lazy">
+      <img src="${set.images.logo}">
       <h3>${set.name}</h3>
+      <div class="set-date">${set.releaseDate || ""}</div>
     `;
     d.onclick = () => openSet(set.id, set.name);
     setsContainer.appendChild(d);
@@ -65,11 +102,8 @@ async function loadSets() {
 ========================= */
 async function openSet(id, name) {
   currentSetId = id;
-  currentPage = 1;
-  finished = false;
-
+  allCards = [];
   cardsContainer.innerHTML = "";
-  loadMoreBtn.classList.remove("hidden");
 
   setsScreen.classList.add("hidden");
   cardsScreen.classList.remove("hidden");
@@ -77,39 +111,32 @@ async function openSet(id, name) {
 
   setTitle.textContent = name;
 
-  if (!cacheSets[id]) cacheSets[id] = [];
-
-  await loadMore();
-}
-
-/* =========================
-   CARGAR MÁS
-========================= */
-async function loadMore() {
-  if (finished) return;
-
   loader.classList.remove("hidden");
   loadingText.textContent = "Cargando cartas…";
 
-  const res = await fetch(
-    `https://api.pokemontcg.io/v2/cards?q=set.id:${currentSetId}&page=${currentPage}&pageSize=${PAGE_SIZE}`,
-    { headers: { "X-Api-Key": API_KEY } }
-  );
-  const data = await res.json();
+  let page = 1;
+  let finished = false;
 
-  if (!data.data || data.data.length === 0) {
-    finished = true;
-    loadMoreBtn.classList.add("hidden");
-    loader.classList.add("hidden");
-    return;
+  while (!finished) {
+    const res = await fetch(
+      `https://api.pokemontcg.io/v2/cards?q=set.id:${id}&page=${page}&pageSize=250`,
+      { headers: { "X-Api-Key": API_KEY } }
+    );
+    const data = await res.json();
+
+    if (!data.data || data.data.length === 0) {
+      finished = true;
+      break;
+    }
+
+    data.data.forEach(card => {
+      allCards.push(card);
+      renderCard(card);
+    });
+
+    page++;
   }
 
-  data.data.forEach(card => {
-    cacheSets[currentSetId].push(card);
-    renderCard(card);
-  });
-
-  currentPage++;
   loader.classList.add("hidden");
 }
 
@@ -125,18 +152,13 @@ function renderCard(card) {
   const d = document.createElement("div");
   d.className = "card";
   d.innerHTML = `
-    <img src="${card.images.small}" loading="lazy">
+    <img src="${card.images.small}">
     <div class="price">${price}</div>
     <h4>${card.name}</h4>
   `;
   d.onclick = () => openCard(card);
   cardsContainer.appendChild(d);
 }
-
-/* =========================
-   BOTÓN
-========================= */
-loadMoreBtn.onclick = loadMore;
 
 /* =========================
    FICHA CARTA
