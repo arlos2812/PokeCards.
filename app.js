@@ -1,55 +1,45 @@
+document.addEventListener("DOMContentLoaded", () => {
+
 const API_KEY = "3d240d93-e6be-4c24-a9fc-c7b4593dd5fc";
 
 /* =========================
-   MUSICA
+   🎵 MÚSICA
 ========================= */
-const music = document.getElementById("music-player");
-const toggleBtn = document.getElementById("music-toggle");
-const volume = document.getElementById("music-volume");
-
-const tracks = [
-  "music/song1.mp3",
-  "music/song2.mp3",
-  "music/song3.mp3"
+const playlist = [
+  "sounds/song1.mp3",
+  "sounds/song2.mp3",
+  "sounds/song3.mp3"
 ];
 
-let playing = false;
-let currentTrack = 0;
+const music = document.getElementById("music-player");
+const musicToggle = document.getElementById("music-toggle");
+const volume = document.getElementById("music-volume");
 
-music.src = tracks[currentTrack];
-music.loop = true;
+let songIndex = 0;
+let playing = false;
+
 music.volume = volume.value;
 
-toggleBtn.onclick = () => {
+musicToggle.onclick = () => {
   if (!playing) {
+    music.src = playlist[songIndex];
     music.play();
-    toggleBtn.textContent = "⏸ Pausar";
+    playing = true;
+    musicToggle.textContent = "⏸️ Música";
   } else {
     music.pause();
-    toggleBtn.textContent = "▶ Música";
+    playing = false;
+    musicToggle.textContent = "▶️ Música";
   }
-  playing = !playing;
 };
 
-volume.oninput = () => music.volume = volume.value;
+volume.oninput = () => (music.volume = volume.value);
 
-/* =========================
-   FETCH CON TIMEOUT
-========================= */
-function fetchWithTimeout(url, options = {}, timeout = 10000) {
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), timeout);
-  return fetch(url, { ...options, signal: controller.signal })
-    .finally(() => clearTimeout(id));
-}
-
-/* =========================
-   ESTADO
-========================= */
-let currentSetId = null;
-let page = 1;
-const pageSize = 30;
-let finished = false;
+music.onended = () => {
+  songIndex = (songIndex + 1) % playlist.length;
+  music.src = playlist[songIndex];
+  music.play();
+};
 
 /* =========================
    UI
@@ -63,151 +53,159 @@ const cardsContainer = document.getElementById("cards");
 const cardDetail = document.getElementById("card-detail");
 
 const setTitle = document.getElementById("set-title");
-const loadMoreBtn = document.getElementById("load-more");
-const loader = document.getElementById("global-loading");
+const backToSets = document.getElementById("back-to-sets");
+const backToCards = document.getElementById("back-to-cards");
 
 /* =========================
-   CARGAR EXPANSIONES
+   LOADER
+========================= */
+const loader = document.getElementById("global-loading");
+const loadingText = document.getElementById("loading-text");
+
+/* =========================
+   ESTADO
+========================= */
+let currentSetId = null;
+let allCards = [];
+
+/* =========================
+   EXPANSIONES
 ========================= */
 async function loadSets() {
-  try {
-    loader.classList.remove("hidden");
+  loader.classList.remove("hidden");
+  loadingText.textContent = "Cargando expansiones…";
 
-    const res = await fetchWithTimeout(
-      "https://api.pokemontcg.io/v2/sets",
-      { headers: { "X-Api-Key": API_KEY } }
-    );
+  const res = await fetch("https://api.pokemontcg.io/v2/sets", {
+    headers: { "X-Api-Key": API_KEY }
+  });
+  const data = await res.json();
 
-    if (!res.ok) throw new Error("API error");
+  setsContainer.innerHTML = "";
 
-    const json = await res.json();
-    if (!json.data) throw new Error("Datos inválidos");
+  data.data.forEach(set => {
+    const d = document.createElement("div");
+    d.className = "set-card";
+    d.innerHTML = `
+      <img src="${set.images.logo}">
+      <h3>${set.name}</h3>
+      <div class="set-date">${set.releaseDate || ""}</div>
+    `;
+    d.onclick = () => openSet(set.id, set.name);
+    setsContainer.appendChild(d);
+  });
 
-    setsContainer.innerHTML = "";
-
-    json.data
-      .sort((a, b) => new Date(b.releaseDate) - new Date(a.releaseDate))
-      .forEach(set => {
-        const div = document.createElement("div");
-        div.className = "set-card";
-        div.innerHTML = `
-          <img src="${set.images.logo}" loading="lazy">
-          <h3>${set.name}</h3>
-          <div class="set-date">${set.releaseDate || ""}</div>
-        `;
-        div.onclick = () => openSet(set.id, set.name);
-        setsContainer.appendChild(div);
-      });
-
-  } catch (e) {
-    console.error(e);
-    setsContainer.innerHTML = `
-      <p style="text-align:center;color:#ff6b6b">
-        ❌ Error cargando expansiones<br>
-        Revisa tu conexión
-      </p>`;
-  } finally {
-    loader.classList.add("hidden");
-  }
+  loader.classList.add("hidden");
 }
 
 /* =========================
-   ABRIR EXPANSION
+   ABRIR EXPANSIÓN
 ========================= */
-function openSet(id, name) {
+async function openSet(id, name) {
   currentSetId = id;
-  page = 1;
-  finished = false;
+  allCards = [];
   cardsContainer.innerHTML = "";
 
-  setTitle.textContent = name;
   setsScreen.classList.add("hidden");
   cardsScreen.classList.remove("hidden");
   cardScreen.classList.add("hidden");
 
-  loadMoreBtn.style.display = "block";
-  loadNextPage();
-}
+  setTitle.textContent = name;
 
-/* =========================
-   CARGAR CARTAS (30)
-========================= */
-async function loadNextPage() {
-  if (finished) return;
+  loader.classList.remove("hidden");
+  loadingText.textContent = "Cargando cartas…";
 
-  try {
-    loader.classList.remove("hidden");
+  let page = 1;
+  let finished = false;
 
-    const res = await fetchWithTimeout(
-      `https://api.pokemontcg.io/v2/cards?q=set.id:${currentSetId}&page=${page}&pageSize=${pageSize}`,
+  while (!finished) {
+    const res = await fetch(
+      `https://api.pokemontcg.io/v2/cards?q=set.id:${id}&page=${page}&pageSize=250`,
       { headers: { "X-Api-Key": API_KEY } }
     );
+    const data = await res.json();
 
-    if (!res.ok) throw new Error("Error cartas");
-
-    const json = await res.json();
-
-    if (!json.data.length) {
+    if (!data.data || data.data.length === 0) {
       finished = true;
-      loadMoreBtn.style.display = "none";
-      return;
+      break;
     }
 
-    json.data.forEach(renderCard);
-    page++;
+    data.data.forEach(card => {
+      allCards.push(card);
+      renderCard(card);
+    });
 
-  } catch (e) {
-    console.error(e);
-  } finally {
-    loader.classList.add("hidden");
+    page++;
   }
+
+  loader.classList.add("hidden");
 }
 
 /* =========================
    RENDER CARTA
 ========================= */
 function renderCard(card) {
-  const div = document.createElement("div");
-  div.className = "card";
-  div.innerHTML = `
-    <img src="${card.images.small}" loading="lazy">
+  const price =
+    card.cardmarket?.prices?.averageSellPrice != null
+      ? card.cardmarket.prices.averageSellPrice.toFixed(2) + " €"
+      : "—";
+
+  const d = document.createElement("div");
+  d.className = "card";
+  d.innerHTML = `
+    <img src="${card.images.small}">
+    <div class="price">${price}</div>
     <h4>${card.name}</h4>
   `;
-  div.onclick = () => openCard(card);
-  cardsContainer.appendChild(div);
+  d.onclick = () => openCard(card);
+  cardsContainer.appendChild(d);
 }
 
 /* =========================
-   DETALLE CARTA
+   FICHA CARTA
 ========================= */
 function openCard(card) {
   cardsScreen.classList.add("hidden");
   cardScreen.classList.remove("hidden");
 
+  const price =
+    card.cardmarket?.prices?.averageSellPrice != null
+      ? card.cardmarket.prices.averageSellPrice.toFixed(2) + " €"
+      : "—";
+
   cardDetail.innerHTML = `
-    <button class="load-more" onclick="closeCard()">⬅ Salir</button>
     <img src="${card.images.large}">
     <h2>${card.name}</h2>
     <p><strong>Expansión:</strong> ${card.set.name}</p>
     <p><strong>Número:</strong> ${card.number}</p>
     <p><strong>Rareza:</strong> ${card.rarity || "—"}</p>
+    <p><strong>Precio medio:</strong> ${price}</p>
+
+    <a target="_blank"
+      href="https://www.pricecharting.com/search-products?q=${encodeURIComponent(card.name)}">
+      PriceCharting
+    </a><br>
+
+    <a target="_blank"
+      href="${card.cardmarket?.url || "https://www.cardmarket.com"}">
+      CardMarket
+    </a>
   `;
 }
 
-function closeCard() {
-  cardScreen.classList.add("hidden");
-  cardsScreen.classList.remove("hidden");
-}
-
 /* =========================
-   BOTONES
+   VOLVER
 ========================= */
-loadMoreBtn.onclick = loadNextPage;
-
-document.getElementById("back-to-sets").onclick = () => {
+backToSets.onclick = () => {
   cardsScreen.classList.add("hidden");
   setsScreen.classList.remove("hidden");
 };
 
+backToCards.onclick = () => {
+  cardScreen.classList.add("hidden");
+  cardsScreen.classList.remove("hidden");
+};
+
 /* INIT */
 loadSets();
+
+});
