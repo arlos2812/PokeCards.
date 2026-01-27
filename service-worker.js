@@ -7,12 +7,12 @@ const APP_ASSETS = [
   "./app.js",
   "./manifest.json",
   "./icons/icon-192.png",
-  "./icons/icon-512.png",
-  "./sounds/song1.mp3",
-  "./sounds/song2.mp3",
-  "./sounds/song3.mp3"
+  "./icons/icon-512.png"
 ];
 
+/* =========================
+   INSTALAR
+========================= */
 self.addEventListener("install", event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(APP_ASSETS))
@@ -20,6 +20,9 @@ self.addEventListener("install", event => {
   self.skipWaiting();
 });
 
+/* =========================
+   ACTIVAR
+========================= */
 self.addEventListener("activate", event => {
   event.waitUntil(
     caches.keys().then(keys =>
@@ -33,17 +36,31 @@ self.addEventListener("activate", event => {
   self.clients.claim();
 });
 
+/* =========================
+   FETCH
+========================= */
 self.addEventListener("fetch", event => {
   const url = new URL(event.request.url);
 
+  // 🚫 NO cachear API
   if (url.origin.includes("pokemontcg.io")) {
     event.respondWith(fetch(event.request));
     return;
   }
 
+  // 🚫 NO cachear imágenes de cartas
+  if (
+    event.request.destination === "image" &&
+    url.origin.includes("images.pokemontcg.io")
+  ) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
+  // 📦 App → cache first
   event.respondWith(
-    caches.match(event.request).then(cached =>
-      cached || fetch(event.request)
+    caches.match(event.request).then(
+      cached => cached || fetch(event.request)
     )
   );
 });
