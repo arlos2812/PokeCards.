@@ -1,4 +1,4 @@
-const CACHE_NAME = "pokecards-v5";
+const CACHE_NAME = "pokecards-v6";
 
 const ASSETS = [
   "./",
@@ -7,14 +7,11 @@ const ASSETS = [
   "./app.js",
   "./manifest.json",
 
-  /* FUENTE */
   "./fonts/PokemonSolid.ttf",
 
-  /* ICONOS */
   "./icons/icon-192.png",
   "./icons/icon-512.png",
 
-  /* SONIDOS */
   "./sounds/song1.mp3",
   "./sounds/song2.mp3",
   "./sounds/song3.mp3"
@@ -39,7 +36,15 @@ self.addEventListener("activate", e => {
 });
 
 self.addEventListener("fetch", e => {
+  const url = new URL(e.request.url);
+
+  /* 🔑 SI ES LA API, NO USAR CACHE */
+  if (url.origin.includes("pokemontcg.io")) {
+    e.respondWith(fetch(e.request));
+    return;
+  }
+
   e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request))
+    caches.match(e.request).then(res => res || fetch(e.request))
   );
 });
