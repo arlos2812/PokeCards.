@@ -10,9 +10,10 @@
 /* ================= BASE ================= */
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: "PokemonSolid", system-ui, sans-serif;
   background: #0b0b0b;
   color: #fff;
+  letter-spacing: 1px;
 }
 
 .hidden { display: none; }
@@ -22,21 +23,9 @@ header {
   padding: 15px;
 }
 
-/* SOLO TÍTULOS EN POKÉMON */
-.logo,
-.section-title {
-  font-family: "PokemonSolid", system-ui, sans-serif;
-  letter-spacing: 1px;
-}
-
 .logo {
-  font-size: 32px;
+  font-size: 34px;
   margin: 0;
-}
-
-.section-title {
-  margin: 20px 0 10px;
-  font-size: 22px;
 }
 
 /* ================= CONTROLES ================= */
@@ -54,7 +43,7 @@ button, select, input {
   border: none;
   padding: 8px 12px;
   border-radius: 8px;
-  font-family: system-ui, sans-serif;
+  font-family: "PokemonSolid", system-ui, sans-serif;
 }
 
 button { cursor: pointer; }
@@ -83,9 +72,9 @@ button { cursor: pointer; }
   object-fit: contain;
 }
 
-.set-card h3 {
-  font-size: 14px;
-  margin: 6px 0;
+.set-date {
+  font-size: 12px;
+  opacity: 0.7;
 }
 
 /* ================= CARD ================= */
@@ -135,14 +124,13 @@ button { cursor: pointer; }
   font-size: 12px;
   padding: 2px 6px;
   border-radius: 12px;
-  font-weight: bold;
 }
 
 /* ================= LOADER ================= */
 .loading {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.85);
+  background: rgba(0,0,0,0.9);
   display: flex;
   flex-direction: column;
   align-items: center;
