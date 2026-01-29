@@ -1,4 +1,4 @@
-const API_KEY = "3d240d93-e6be-4c24-a9fc-c7b4593dd5fc";
+const API_KEY = "0ff3e61a-b7b9-4106-8a7e-09f52033f9fd";
 
 /* ================= MÚSICA ================= */
 const playlist = ["sounds/song1.mp3","sounds/song2.mp3","sounds/song3.mp3"];
@@ -75,6 +75,9 @@ async function loadSets() {
     const res = await fetch("https://api.pokemontcg.io/v2/sets", {
       headers: { "X-Api-Key": API_KEY }
     });
+
+    if (!res.ok) throw new Error("API error");
+
     const data = await res.json();
 
     sets.innerHTML = "";
@@ -89,8 +92,10 @@ async function loadSets() {
       d.onclick = () => openSet(s.id, s.name);
       sets.appendChild(d);
     });
+
   } catch (e) {
     loadingText.textContent = "Error cargando expansiones";
+    console.error(e);
   }
 
   loader.classList.add("hidden");
@@ -125,6 +130,9 @@ async function loadCards() {
       `https://api.pokemontcg.io/v2/cards?q=set.id:${setId}&page=${page}&pageSize=30`,
       { headers: { "X-Api-Key": API_KEY } }
     );
+
+    if (!res.ok) throw new Error("API error");
+
     const data = await res.json();
 
     if (!data.data || data.data.length === 0) {
@@ -174,6 +182,7 @@ async function loadCards() {
 
   } catch (e) {
     loadingText.textContent = "Error cargando cartas";
+    console.error(e);
   }
 
   loading = false;
