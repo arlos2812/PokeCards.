@@ -1,7 +1,16 @@
+/* ================= FUENTE POKÉMON ================= */
+@font-face {
+  font-family: "PokemonSolid";
+  src: url("./fonts/PokemonSolid.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* ================= BASE ================= */
 body {
   margin: 0;
-  font-family: system-ui, sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   background: #0b0b0b;
   color: #fff;
 }
@@ -13,14 +22,21 @@ header {
   padding: 15px;
 }
 
+/* SOLO TÍTULOS EN POKÉMON */
+.logo,
+.section-title {
+  font-family: "PokemonSolid", system-ui, sans-serif;
+  letter-spacing: 1px;
+}
+
 .logo {
   font-size: 32px;
   margin: 0;
 }
 
 .section-title {
-  text-align: center;
   margin: 20px 0 10px;
+  font-size: 22px;
 }
 
 /* ================= CONTROLES ================= */
@@ -38,6 +54,7 @@ button, select, input {
   border: none;
   padding: 8px 12px;
   border-radius: 8px;
+  font-family: system-ui, sans-serif;
 }
 
 button { cursor: pointer; }
@@ -66,9 +83,9 @@ button { cursor: pointer; }
   object-fit: contain;
 }
 
-.set-date {
-  font-size: 12px;
-  opacity: 0.7;
+.set-card h3 {
+  font-size: 14px;
+  margin: 6px 0;
 }
 
 /* ================= CARD ================= */
@@ -169,4 +186,3 @@ button { cursor: pointer; }
   from { transform: scale(0.95); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
 }
-
