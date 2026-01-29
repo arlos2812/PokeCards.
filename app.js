@@ -47,6 +47,7 @@ const filter = document.getElementById("filter");
 
 const loader = document.getElementById("global-loading");
 const loadingText = document.getElementById("loading-text");
+const loadMoreBtn = document.getElementById("load-more");
 
 /* ================= ESTADO ================= */
 let setId = null;
@@ -57,6 +58,7 @@ let allCards = [];
 
 /* ⭐ FAVORITAS */
 const favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
+
 const toggleFavorite = card => {
   const i = favorites.findIndex(f => f.id === card.id);
   if (i >= 0) favorites.splice(i, 1);
@@ -69,23 +71,27 @@ async function loadSets() {
   loader.classList.remove("hidden");
   loadingText.textContent = "Cargando expansiones…";
 
-  const res = await fetch("https://api.pokemontcg.io/v2/sets", {
-    headers: { "X-Api-Key": API_KEY }
-  });
-  const data = await res.json();
+  try {
+    const res = await fetch("https://api.pokemontcg.io/v2/sets", {
+      headers: { "X-Api-Key": API_KEY }
+    });
+    const data = await res.json();
 
-  sets.innerHTML = "";
-  data.data.forEach(s => {
-    const d = document.createElement("div");
-    d.className = "set-card";
-    d.innerHTML = `
-      <img src="${s.images.logo}">
-      <h3>${s.name}</h3>
-      <div class="set-date">${s.releaseDate || ""}</div>
-    `;
-    d.onclick = () => openSet(s.id, s.name);
-    sets.appendChild(d);
-  });
+    sets.innerHTML = "";
+    data.data.forEach(s => {
+      const d = document.createElement("div");
+      d.className = "set-card";
+      d.innerHTML = `
+        <img src="${s.images.logo}">
+        <h3>${s.name}</h3>
+        <div class="set-date">${s.releaseDate || ""}</div>
+      `;
+      d.onclick = () => openSet(s.id, s.name);
+      sets.appendChild(d);
+    });
+  } catch (e) {
+    loadingText.textContent = "Error cargando expansiones";
+  }
 
   loader.classList.add("hidden");
 }
@@ -97,81 +103,89 @@ function openSet(id, name) {
   finished = false;
   allCards = [];
   cards.innerHTML = "";
+  loadMoreBtn.style.display = "none";
 
   setsScreen.classList.add("hidden");
   cardsScreen.classList.remove("hidden");
   cardScreen.classList.add("hidden");
 
   document.getElementById("set-title").textContent = name;
-  loadCards(true);
+  loadCards();
 }
 
-async function loadCards(auto) {
+async function loadCards() {
   if (loading || finished) return;
   loading = true;
 
   loader.classList.remove("hidden");
   loadingText.textContent = "Cargando cartas…";
 
-  const res = await fetch(
-    `https://api.pokemontcg.io/v2/cards?q=set.id:${setId}&page=${page}&pageSize=50`,
-    { headers: { "X-Api-Key": API_KEY } }
-  );
-  const data = await res.json();
+  try {
+    const res = await fetch(
+      `https://api.pokemontcg.io/v2/cards?q=set.id:${setId}&page=${page}&pageSize=30`,
+      { headers: { "X-Api-Key": API_KEY } }
+    );
+    const data = await res.json();
 
-  if (!data.data || data.data.length === 0) {
-    finished = true;
-    loadingText.textContent = "No hay más cartas";
-    setTimeout(() => loader.classList.add("hidden"), 400);
-    return;
+    if (!data.data || data.data.length === 0) {
+      finished = true;
+      loadMoreBtn.style.display = "none";
+      loader.classList.add("hidden");
+      return;
+    }
+
+    allCards.push(...data.data);
+
+    const top5 = [...allCards]
+      .filter(c => c.cardmarket?.prices?.averageSellPrice)
+      .sort((a,b) =>
+        b.cardmarket.prices.averageSellPrice -
+        a.cardmarket.prices.averageSellPrice
+      )
+      .slice(0,5);
+
+    data.data.forEach(c => {
+      const price = c.cardmarket?.prices?.averageSellPrice;
+      const isFav = favorites.some(f => f.id === c.id);
+      const topIndex = top5.findIndex(t => t.id === c.id);
+
+      const d = document.createElement("div");
+      d.className = "card";
+      d.innerHTML = `
+        ${topIndex >= 0 ? `<div class="fire">🔥 ${topIndex + 1}</div>` : ""}
+        <div class="star ${isFav ? "active" : ""}">⭐</div>
+        <img src="${c.images.small}">
+        <div class="price">${price ? price.toFixed(2) + " €" : "—"}</div>
+        <h4>${c.name}</h4>
+      `;
+
+      d.querySelector(".star").onclick = e => {
+        e.stopPropagation();
+        toggleFavorite(c);
+        e.target.classList.toggle("active");
+      };
+
+      d.onclick = () => openCard(c);
+      cards.appendChild(d);
+    });
+
+    page++;
+    loadMoreBtn.style.display = "block";
+
+  } catch (e) {
+    loadingText.textContent = "Error cargando cartas";
   }
 
-  allCards.push(...data.data);
-
-  // 🔥 TOP 5
-  const top5 = [...allCards]
-    .filter(c => c.cardmarket?.prices?.averageSellPrice)
-    .sort((a,b) =>
-      b.cardmarket.prices.averageSellPrice -
-      a.cardmarket.prices.averageSellPrice
-    )
-    .slice(0,5);
-
-  data.data.forEach(c => {
-    const price = c.cardmarket?.prices?.averageSellPrice;
-    const isFav = favorites.some(f => f.id === c.id);
-    const topIndex = top5.findIndex(t => t.id === c.id);
-
-    const d = document.createElement("div");
-    d.className = "card";
-    d.innerHTML = `
-      ${topIndex >= 0 ? `<div class="fire">🔥 ${topIndex+1}</div>` : ""}
-      <div class="star ${isFav ? "active" : ""}">⭐</div>
-      <img src="${c.images.small}">
-      <div class="price">${price ? price.toFixed(2)+" €" : "—"}</div>
-      <h4>${c.name}</h4>
-    `;
-
-    d.querySelector(".star").onclick = e => {
-      e.stopPropagation();
-      toggleFavorite(c);
-      e.target.classList.toggle("active");
-    };
-
-    d.onclick = () => openCard(c);
-    cards.appendChild(d);
-  });
-
-  page++;
   loading = false;
   loader.classList.add("hidden");
-
-  if (auto) setTimeout(() => loadCards(true), 300);
 }
+
+loadMoreBtn.onclick = () => loadCards();
 
 /* ================= FILTROS ================= */
 filter.onchange = () => {
   let list = [...allCards];
+
   if (filter.value === "az") list.sort((a,b)=>a.name.localeCompare(b.name));
   if (filter.value === "za") list.sort((a,b)=>b.name.localeCompare(a.name));
   if (filter.value === "price-desc")
@@ -180,16 +194,16 @@ filter.onchange = () => {
     list.sort((a,b)=>(a.cardmarket?.prices?.averageSellPrice||0)-(b.cardmarket?.prices?.averageSellPrice||0));
 
   cards.innerHTML = "";
-  list.forEach(openCardCard => {
-    const price = openCardCard.cardmarket?.prices?.averageSellPrice;
+  list.forEach(c => {
+    const price = c.cardmarket?.prices?.averageSellPrice;
     const d = document.createElement("div");
     d.className = "card";
     d.innerHTML = `
-      <img src="${openCardCard.images.small}">
-      <div class="price">${price ? price.toFixed(2)+" €" : "—"}</div>
-      <h4>${openCardCard.name}</h4>
+      <img src="${c.images.small}">
+      <div class="price">${price ? price.toFixed(2) + " €" : "—"}</div>
+      <h4>${c.name}</h4>
     `;
-    d.onclick = () => openCard(openCardCard);
+    d.onclick = () => openCard(c);
     cards.appendChild(d);
   });
 };
@@ -206,73 +220,18 @@ function openCard(c) {
     <p>Expansión: ${c.set.name}</p>
     <p>Número: ${c.number}</p>
     <p>Rareza: ${c.rarity || "—"}</p>
-    <p>Precio medio: ${price ? price.toFixed(2)+" €" : "—"}</p>
+    <p>Precio medio: ${price ? price.toFixed(2) + " €" : "—"}</p>
     <a target="_blank" href="https://www.pricecharting.com/search-products?q=${encodeURIComponent(c.name)}">PriceCharting</a><br>
     <a target="_blank" href="${c.cardmarket?.url || "https://www.cardmarket.com"}">CardMarket</a>
   `;
 }
-
-/* ================= ESCANEO + AUTOCOMPLETAR ================= */
-const scanBtn = document.getElementById("scan-btn");
-const camera = document.getElementById("camera-input");
-
-scanBtn.onclick = () => camera.click();
-
-camera.onchange = e => {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  setsScreen.classList.add("hidden");
-  cardsScreen.classList.add("hidden");
-  cardScreen.classList.remove("hidden");
-
-  detail.innerHTML = `
-    <h2>Escaneo de carta</h2>
-    <img src="${URL.createObjectURL(file)}" style="max-width:280px">
-    <input id="scan-input" placeholder="Nombre de la carta">
-    <div id="scan-suggestions"></div>
-  `;
-
-  const input = document.getElementById("scan-input");
-  const suggestions = document.getElementById("scan-suggestions");
-  let t = null;
-
-  input.oninput = () => {
-    clearTimeout(t);
-    if (input.value.length < 2) {
-      suggestions.innerHTML = "";
-      return;
-    }
-    t = setTimeout(async () => {
-      suggestions.textContent = "Buscando…";
-      const r = await fetch(
-        `https://api.pokemontcg.io/v2/cards?q=name:${input.value}*&pageSize=5`,
-        { headers: { "X-Api-Key": API_KEY } }
-      );
-      const d = await r.json();
-      suggestions.innerHTML = "";
-      d.data.forEach(c => {
-        const price = c.cardmarket?.prices?.averageSellPrice;
-        const el = document.createElement("div");
-        el.className = "card";
-        el.innerHTML = `
-          <img src="${c.images.small}">
-          <div class="price">${price ? price.toFixed(2)+" €" : "—"}</div>
-          <h4>${c.name}</h4>
-          <p>${c.set.name}</p>
-        `;
-        el.onclick = () => openCard(c);
-        suggestions.appendChild(el);
-      });
-    }, 400);
-  };
-};
 
 /* ================= VOLVER ================= */
 backSets.onclick = () => {
   cardsScreen.classList.add("hidden");
   setsScreen.classList.remove("hidden");
 };
+
 backCards.onclick = () => {
   cardScreen.classList.add("hidden");
   cardsScreen.classList.remove("hidden");
