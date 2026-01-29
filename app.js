@@ -1,38 +1,46 @@
 const API_KEY = "0ff3e61a-b7b9-4106-8a7e-09f52033f9fd";
+const API = "https://api.pokemontcg.io/v2/sets";
 
-const status = document.getElementById("status");
 const sets = document.getElementById("sets");
+const loader = document.getElementById("global-loading");
+const loadingText = document.getElementById("loading-text");
 
 async function loadSets() {
-  status.textContent = "Cargando expansiones…";
+  loader.classList.remove("hidden");
+  loadingText.textContent = "Cargando expansiones…";
 
   try {
-    const res = await fetch("https://api.pokemontcg.io/v2/sets", {
+    const res = await fetch(API, {
       headers: {
         "X-Api-Key": API_KEY
       }
     });
 
     if (!res.ok) {
-      status.textContent = "Error HTTP: " + res.status;
-      return;
+      throw new Error("HTTP " + res.status);
     }
 
     const data = await res.json();
 
-    status.textContent = "Expansiones cargadas: " + data.data.length;
+    sets.innerHTML = "";
 
-    data.data.forEach(s => {
-      const d = document.createElement("div");
-      d.className = "set-card";
-      d.textContent = s.name;
-      sets.appendChild(d);
+    data.data.forEach(set => {
+      const div = document.createElement("div");
+      div.className = "set-card";
+      div.innerHTML = `
+        <img src="${set.images.logo}">
+        <h3>${set.name}</h3>
+        <div class="set-date">${set.releaseDate || ""}</div>
+      `;
+      sets.appendChild(div);
     });
 
-  } catch (e) {
-    status.textContent = "ERROR JS: " + e.message;
-    console.error(e);
+  } catch (err) {
+    console.error(err);
+    loadingText.textContent = "Error cargando expansiones";
   }
+
+  loader.classList.add("hidden");
 }
 
-loadSets();
+document.addEventListener("DOMContentLoaded", loadSets);
