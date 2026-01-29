@@ -1,20 +1,84 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PokeCards</title>
 
+  <!-- Manifest (PWA sin service worker activo) -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#ffcb05">
+
+  <!-- Estilos -->
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-<h1 class="logo">PokeCards</h1>
+  <!-- HEADER -->
+  <header>
+    <h1 class="logo">PokeCards</h1>
+  </header>
 
-<div id="status">Iniciando…</div>
+  <!-- BARRA DE MÚSICA -->
+  <div class="music-bar">
+    <button id="music-toggle">▶️ Música</button>
+    <input id="music-volume" type="range" min="0" max="1" step="0.01" value="0.4">
+  </div>
 
-<div id="sets" class="grid"></div>
+  <!-- ESCÁNER -->
+  <div class="scan-bar">
+    <button id="scan-btn">📷 Escanear carta</button>
+    <input
+      id="camera-input"
+      type="file"
+      accept="image/*"
+      capture="environment"
+      style="display:none"
+    >
+  </div>
 
-<script src="app.js"></script>
+  <!-- LOADING GLOBAL -->
+  <div id="global-loading" class="loading hidden">
+    <div class="spinner"></div>
+    <div id="loading-text">Cargando…</div>
+  </div>
+
+  <!-- PANTALLA EXPANSIONES -->
+  <section id="sets-screen">
+    <h2 class="section-title">EXPANSIONES</h2>
+    <div id="sets" class="grid"></div>
+  </section>
+
+  <!-- PANTALLA CARTAS -->
+  <section id="cards-screen" class="hidden">
+    <button id="back-to-sets">⬅ Volver</button>
+
+    <select id="filter">
+      <option value="az">A–Z</option>
+      <option value="za">Z–A</option>
+      <option value="price-desc">💰 Precio ↓</option>
+      <option value="price-asc">💰 Precio ↑</option>
+    </select>
+
+    <h2 id="set-title" class="section-title"></h2>
+    <div id="cards" class="grid"></div>
+
+    <!-- BOTÓN CARGAR MÁS (para después) -->
+    <button id="load-more" class="hidden">Cargar más</button>
+  </section>
+
+  <!-- PANTALLA DETALLE CARTA -->
+  <section id="card-screen" class="hidden">
+    <button id="back-to-cards">⬅ Volver</button>
+    <div id="card-detail"></div>
+  </section>
+
+  <!-- AUDIO -->
+  <audio id="music-player" loop></audio>
+
+  <!-- SCRIPT PRINCIPAL -->
+  <script src="app.js"></script>
+
 </body>
 </html>
