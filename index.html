@@ -5,11 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PokeCards</title>
 
-  <!-- Manifest (PWA sin service worker activo) -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#ffcb05">
 
-  <!-- Estilos -->
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -23,18 +21,13 @@
   <!-- BARRA DE MÚSICA -->
   <div class="music-bar">
     <button id="music-toggle">▶️ Música</button>
-    <input id="music-volume" type="range" min="0" max="1" step="0.01" value="0.4">
-  </div>
-
-  <!-- ESCÁNER -->
-  <div class="scan-bar">
-    <button id="scan-btn">📷 Escanear carta</button>
     <input
-      id="camera-input"
-      type="file"
-      accept="image/*"
-      capture="environment"
-      style="display:none"
+      id="music-volume"
+      type="range"
+      min="0"
+      max="1"
+      step="0.01"
+      value="0.4"
     >
   </div>
 
@@ -64,7 +57,6 @@
     <h2 id="set-title" class="section-title"></h2>
     <div id="cards" class="grid"></div>
 
-    <!-- BOTÓN CARGAR MÁS (para después) -->
     <button id="load-more" class="hidden">Cargar más</button>
   </section>
 
@@ -77,7 +69,7 @@
   <!-- AUDIO -->
   <audio id="music-player" loop></audio>
 
-  <!-- SCRIPT PRINCIPAL -->
+  <!-- SCRIPT -->
   <script src="app.js"></script>
 
 </body>
