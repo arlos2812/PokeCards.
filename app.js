@@ -1,7 +1,7 @@
 const API = "https://api.pokemontcg.io/v2";
 const API_KEY = "0ff3e61a-b7b9-4106-8a7e-09f52033f9fd";
 
-// 🎵 PLAYLIST
+// 🎵 PLAYLIST (3 canciones)
 const playlist = [
   "sounds/music1.mp3",
   "sounds/music2.mp3",
@@ -10,6 +10,7 @@ const playlist = [
 
 let currentSong = 0;
 
+// 🎶 MÚSICA
 const music = document.getElementById("music-player");
 const musicBtn = document.getElementById("music-toggle");
 const volume = document.getElementById("music-volume");
@@ -24,18 +25,12 @@ music.addEventListener("ended", () => {
 });
 
 musicBtn.onclick = () => {
-  if (music.paused) {
-    music.play();
-  } else {
-    music.pause();
-  }
+  music.paused ? music.play() : music.pause();
 };
 
-volume.oninput = e => {
-  music.volume = e.target.value;
-};
+volume.oninput = e => music.volume = e.target.value;
 
-// 📦 ELEMENTOS
+// 📦 DOM
 const setsDiv = document.getElementById("sets");
 const cardsDiv = document.getElementById("cards");
 const loading = document.getElementById("loading");
@@ -48,19 +43,22 @@ const setTitle = document.getElementById("set-title");
 let currentSet = null;
 let page = 1;
 
-// 🔑 API FETCH
+// 🔑 FETCH SIN HEADERS (clave para CORS)
 async function apiFetch(url) {
-  const res = await fetch(url, {
-    headers: { "X-Api-Key": API_KEY }
-  });
+  const res = await fetch(url);
   if (!res.ok) throw new Error(res.status);
   return res.json();
 }
 
-// 🔹 EXPANSIONES
+// 🔹 CARGAR EXPANSIONES
 async function loadSets() {
   try {
-    const data = await apiFetch(`${API}/sets`);
+    loading.textContent = "Cargando expansiones…";
+
+    const data = await apiFetch(
+      `${API}/sets?apiKey=${API_KEY}`
+    );
+
     loading.style.display = "none";
 
     data.data.forEach(set => {
@@ -79,7 +77,7 @@ async function loadSets() {
   }
 }
 
-// 🔹 ABRIR SET
+// 🔹 ABRIR EXPANSIÓN
 function openSet(set) {
   currentSet = set;
   page = 1;
@@ -97,7 +95,7 @@ async function loadCards() {
   loadMoreBtn.disabled = true;
 
   const data = await apiFetch(
-    `${API}/cards?q=set.id:${currentSet.id}&page=${page}&pageSize=30`
+    `${API}/cards?q=set.id:${currentSet.id}&page=${page}&pageSize=30&apiKey=${API_KEY}`
   );
 
   data.data.forEach(card => {
