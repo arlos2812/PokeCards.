@@ -1,6 +1,6 @@
 /* ================= CONFIG ================= */
 const API_KEY = "0ff3e61a-b7b9-4106-8a7e-09f52033f9fd";
-const API_BASE = "https://corsproxy.io/?https://api.pokemontcg.io/v2";
+const API_BASE = "https://api.pokemontcg.io/v2";
 const PAGE_SIZE = 30;
 
 /* ================= DOM ================= */
@@ -159,3 +159,4 @@ musicVolume.oninput = () => {
 
 /* ================= INIT ================= */
 document.addEventListener("DOMContentLoaded", loadSets);
+
